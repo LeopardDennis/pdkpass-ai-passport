@@ -1,0 +1,28 @@
+#pragma once
+
+#include <stddef.h>
+
+typedef enum {
+    PDKPASS_PAGE_HOME = 0,
+    PDKPASS_PAGE_CALENDAR,
+    PDKPASS_PAGE_STANDINGS,
+    PDKPASS_PAGE_RACE_DETAIL,
+} pdkpass_page_t;
+
+typedef enum {
+    PDKPASS_INPUT_UP = 0,
+    PDKPASS_INPUT_DOWN,
+    PDKPASS_INPUT_OK,
+    PDKPASS_INPUT_BACK,
+} pdkpass_input_t;
+
+typedef struct {
+    pdkpass_page_t page;
+    pdkpass_page_t detail_origin;
+    size_t selected_race;
+    size_t selected_driver;
+} pdkpass_state_t;
+
+void pdkpass_state_init(pdkpass_state_t *state);
+void pdkpass_state_handle(pdkpass_state_t *state, pdkpass_input_t input,
+                          size_t race_count, size_t driver_count);

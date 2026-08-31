@@ -6,6 +6,11 @@
 
 ## Unreleased
 
+- Replaced the hardware demo menu with the offline-first PDKPASS application:
+  next-race dashboard, remaining 2026 calendar, full driver standings, race
+  details, race-specific colours, battery status, and idle backlight control.
+- Added a hardware-independent PDKPASS navigation state machine and host tests,
+  plus fork-owned bilingual product READMEs and an official-data snapshot note.
 - Made mini-program BLE install compatibility a template-level invariant: fixed
   protected `cardid`/Recovery partitions, retained the five-second UP-key
   Recovery boot hook, and added CI validation for merged-image structure,

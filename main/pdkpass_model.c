@@ -1,0 +1,69 @@
+#include "pdkpass_model.h"
+
+static size_t wrap_previous(size_t value, size_t count)
+{
+    return count == 0 ? 0 : (value + count - 1) % count;
+}
+
+static size_t wrap_next(size_t value, size_t count)
+{
+    return count == 0 ? 0 : (value + 1) % count;
+}
+
+void pdkpass_state_init(pdkpass_state_t *state)
+{
+    state->page = PDKPASS_PAGE_HOME;
+    state->detail_origin = PDKPASS_PAGE_HOME;
+    state->selected_race = 0;
+    state->selected_driver = 0;
+}
+
+// Pure navigation state machine. UI rendering and hardware access intentionally
+// stay out of this function so every button path can be covered by host tests.
+void pdkpass_state_handle(pdkpass_state_t *state, pdkpass_input_t input,
+                          size_t race_count, size_t driver_count)
+{
+    switch (state->page) {
+    case PDKPASS_PAGE_HOME:
+        if (input == PDKPASS_INPUT_UP) state->page = PDKPASS_PAGE_STANDINGS;
+        if (input == PDKPASS_INPUT_DOWN) state->page = PDKPASS_PAGE_CALENDAR;
+        if (input == PDKPASS_INPUT_OK && race_count > 0) {
+            state->detail_origin = PDKPASS_PAGE_HOME;
+            state->page = PDKPASS_PAGE_RACE_DETAIL;
+        }
+        break;
+
+    case PDKPASS_PAGE_CALENDAR:
+        if (input == PDKPASS_INPUT_UP) {
+            state->selected_race = wrap_previous(state->selected_race, race_count);
+        } else if (input == PDKPASS_INPUT_DOWN) {
+            state->selected_race = wrap_next(state->selected_race, race_count);
+        } else if (input == PDKPASS_INPUT_OK && race_count > 0) {
+            state->detail_origin = PDKPASS_PAGE_CALENDAR;
+            state->page = PDKPASS_PAGE_RACE_DETAIL;
+        } else if (input == PDKPASS_INPUT_BACK) {
+            state->page = PDKPASS_PAGE_HOME;
+        }
+        break;
+
+    case PDKPASS_PAGE_STANDINGS:
+        if (input == PDKPASS_INPUT_UP) {
+            state->selected_driver = wrap_previous(state->selected_driver, driver_count);
+        } else if (input == PDKPASS_INPUT_DOWN) {
+            state->selected_driver = wrap_next(state->selected_driver, driver_count);
+        } else if (input == PDKPASS_INPUT_BACK) {
+            state->page = PDKPASS_PAGE_HOME;
+        }
+        break;
+
+    case PDKPASS_PAGE_RACE_DETAIL:
+        if (input == PDKPASS_INPUT_UP) {
+            state->selected_race = wrap_previous(state->selected_race, race_count);
+        } else if (input == PDKPASS_INPUT_DOWN) {
+            state->selected_race = wrap_next(state->selected_race, race_count);
+        } else if (input == PDKPASS_INPUT_OK || input == PDKPASS_INPUT_BACK) {
+            state->page = state->detail_origin;
+        }
+        break;
+    }
+}
