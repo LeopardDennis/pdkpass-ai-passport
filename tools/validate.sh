@@ -37,6 +37,10 @@ run_static_checks() {
         -o "${test_dir}/test_pdkpass_schedule"
     "${test_dir}/test_pdkpass_schedule"
     "${CC:-cc}" -std=c11 -Wall -Wextra -Werror -Imain \
+        tests/test_pdkpass_tracks.c main/pdkpass_tracks.c \
+        -o "${test_dir}/test_pdkpass_tracks"
+    "${test_dir}/test_pdkpass_tracks"
+    "${CC:-cc}" -std=c11 -Wall -Wextra -Werror -Imain \
         tests/test_pdkpass_results_core.c main/pdkpass_results_core.c \
         -o "${test_dir}/test_pdkpass_results_core"
     "${test_dir}/test_pdkpass_results_core"

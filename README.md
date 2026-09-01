@@ -11,13 +11,17 @@ standings board, race-detail pass, and session-podium archive.
 
 ## First release
 
+- Recreates the approved PDKPASS race-pass artwork directly in the firmware:
+  square pixel type, paper tickets with offset shadows, blue race panels,
+  yellow session highlights, compact circuit outlines, and the same visual
+  system across calendar, standings, results, setup, and season-end screens.
 - Uses Beijing time to open the current or next-race dashboard automatically.
 - Downloads and caches the current season calendar with a race-specific accent
   colour, while retaining a bundled 2026 fallback for first use without Wi-Fi.
 - Updates the driver standings from the latest completed race and keeps them
   available offline.
 - Opens race details with CST session times and, when known, circuit length and
-  lap count.
+  lap count, plus a distinct compact outline for each bundled 2026 circuit.
 - Downloads and caches the top three from practice, sprint qualifying, sprint,
   qualifying, and race sessions after the free historical-results delay.
 - Keeps the calendar and standings available offline, and dims/turns off the
@@ -90,6 +94,20 @@ The most recent valid time, accepted season, standings, and downloaded podiums
 remain available offline. After a long powered-off period, reconnect to refresh
 them. Dynamic calendar, standings, session classifications, and driver metadata
 come from the unofficial [OpenF1 API](https://openf1.org/docs/).
+
+### Circuit-outline provenance
+
+The compact 2026 outlines were resampled to 48 segments from the creator's
+local Apex track resource set. Its metadata references OpenF1's
+`circuit_info_url` and MultiViewer for most circuits, OpenStreetMap geometry for
+Sepang, and the official Madring circuit map for Madring. PDKPASS embeds only
+the resampled coordinates, not the source JSON, SVG, or map artwork.
+
+OpenF1 identifies the detailed circuit information as data provided by
+[MultiViewer](https://multiviewer.app/docs/); Sepang's geometry is attributed to
+[OpenStreetMap contributors](https://www.openstreetmap.org/copyright). This is
+an independent, non-commercial fan use. Review the relevant source terms before
+any commercial redistribution.
 
 PDKPASS is an independent fan project and is not affiliated with or endorsed by
 Formula 1, the FIA, or FoloToy. Formula 1 and related marks belong to their

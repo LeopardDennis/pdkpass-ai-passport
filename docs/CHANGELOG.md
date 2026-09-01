@@ -6,6 +6,12 @@
 
 ## Unreleased
 
+- Rebuilt every PDKPASS screen around the approved pixel race-pass artwork,
+  including paper-ticket shadows, UNSCII type, blue gradients, per-race accent
+  panels, a circuit-outline detail card, and overflow-safe compact list rows.
+- Replaced the shared approximate circuit drawing with distinct offline,
+  low-resolution outlines for all 23 rounds of the 2026 season, selected by
+  circuit name so calendar round changes do not mislabel known tracks.
 - Replaced the hardware demo menu with the offline-first PDKPASS application:
   next-race dashboard, current-season calendar, full driver standings, race
   details, race-specific colours, battery status, and idle backlight control.

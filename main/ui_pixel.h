@@ -14,6 +14,9 @@
 #define UI_MUTED      0xD9E7EC
 
 lv_obj_t *ui_pixel_screen_create(const char *title);
+void ui_pixel_screen_set_title(lv_obj_t *screen, const char *title);
+lv_obj_t *ui_pixel_ticket_create(lv_obj_t *parent, int x, int y, int w, int h,
+                                 uint32_t color, bool shadow);
 lv_obj_t *ui_pixel_panel_create(lv_obj_t *parent, int x, int y, int w, int h,
                                 uint32_t color);
 lv_obj_t *ui_pixel_label(lv_obj_t *parent, const char *text,

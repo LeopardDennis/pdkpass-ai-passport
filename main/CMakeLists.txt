@@ -11,6 +11,7 @@ idf_component_register(
          "pdkpass_screenshot.c"
          "pdkpass_season.c"
          "pdkpass_season_core.c"
+         "pdkpass_tracks.c"
          "pdkpass_ui.c"
          "pdkpass_wifi_form.c"
     INCLUDE_DIRS "."

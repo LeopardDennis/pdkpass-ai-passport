@@ -5,7 +5,7 @@
 // Schedule: https://www.formula1.com/en/racing/2026
 // Standings: https://www.formula1.com/en/results/2026/drivers
 const pdkpass_race_t pdkpass_races[] = {
-    { 0, 1788714000, 0xE32636, 5793, 13, 53, "ITALY", "MONZA", "04-06 SEP", "FP1   04 SEP 18:30", "QUALI 05 SEP 22:00", "RACE  06 SEP 21:00", "Italy" },
+    { 0, 1788714000, 0xFFD928, 5793, 13, 53, "ITALY", "MONZA", "04-06 SEP", "FP1   04 SEP 18:30", "QUALI 05 SEP 22:00", "RACE  06 SEP 21:00", "Italy" },
     { 0, 1789318800, 0xF2A900, 5416, 14, 57, "SPAIN", "MADRING", "11-13 SEP", "FP1   11 SEP 19:30", "QUALI 12 SEP 22:00", "RACE  13 SEP 21:00", "Spain" },
     { 0, 1790434800, 0x00A6C8, 6003, 15, 51, "AZERBAIJAN", "BAKU", "24-26 SEP", "FP1   24 SEP 16:30", "QUALI 25 SEP 20:00", "RACE  26 SEP 19:00", "Azerbaijan" },
     { 0, 1791111600, 0xFF7A00, 5543, 16, 56, "MALAYSIA", "SEPANG", "02-04 OCT", "FP1   02 OCT 12:30", "QUALI 03 OCT 16:00", "RACE  04 OCT 15:00", "Malaysia" },
