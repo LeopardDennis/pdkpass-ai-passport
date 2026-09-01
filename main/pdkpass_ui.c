@@ -4,9 +4,13 @@
 #include "bsp_display.h"
 #include "pdkpass_data.h"
 #include "pdkpass_model.h"
+#include "pdkpass_schedule.h"
 #include "ui_pixel.h"
 #include "lvgl.h"
+#include <limits.h>
 #include <stdio.h>
+#include <string.h>
+#include <time.h>
 
 #define CONTENT_X 10
 #define CONTENT_Y 53
@@ -16,18 +20,25 @@
 #define STANDINGS_ROWS 6
 #define IDLE_DIM_SECONDS 30
 #define IDLE_OFF_SECONDS 90
+#define CLOCK_FALLBACK_PERIOD_MS 86400000U
 
 static lv_obj_t *s_screen;
 static lv_obj_t *s_content;
 static lv_obj_t *s_hint;
 static lv_obj_t *s_battery;
+static lv_obj_t *s_network;
 static lv_obj_t *s_mascot;
 static lv_timer_t *s_battery_timer;
 static lv_timer_t *s_idle_timer;
+static lv_timer_t *s_clock_timer;
 static pdkpass_state_t s_state;
 static bool s_battery_available;
+static bool s_time_valid;
 static unsigned s_idle_seconds;
 static unsigned s_idle_stage;
+static pdkpass_network_state_t s_network_state = PDKPASS_NETWORK_STARTING;
+static char s_setup_ssid[33];
+static char s_setup_password[16];
 
 static lv_obj_t *make_block(lv_obj_t *parent, int x, int y, int w, int h,
                             uint32_t color)
@@ -75,14 +86,63 @@ static void set_hint(const char *text)
     lv_label_set_text(s_hint, text);
 }
 
+static void render_wifi_setup(void)
+{
+    content_reset(UI_PAPER);
+    make_label(s_content, "WIFI SETUP", 0, 0, 198,
+               &lv_font_montserrat_20, UI_INK);
+    make_label(s_content, "1  CONNECT PHONE TO", 0, 34, 198,
+               &lv_font_montserrat_14, UI_SKY_DARK);
+    make_label(s_content, s_setup_ssid, 0, 58, 198,
+               &lv_font_montserrat_14, UI_RED);
+    make_label(s_content, "PASSWORD", 0, 88, 80,
+               &lv_font_montserrat_14, UI_SKY_DARK);
+    make_label(s_content, s_setup_password, 0, 111, 198,
+               &lv_font_montserrat_14, UI_INK);
+    make_label(s_content, "2  OPEN IN BROWSER", 0, 145, 198,
+               &lv_font_montserrat_14, UI_SKY_DARK);
+    make_label(s_content, "192.168.4.1", 0, 169, 198,
+               &lv_font_montserrat_20, UI_INK);
+    set_hint("UP PTS              DN CAL");
+}
+
+static void render_season_complete(void)
+{
+    content_reset(UI_PAPER);
+    make_label(s_content, "2026", 0, 4, 198,
+               &lv_font_montserrat_14, UI_SKY_DARK);
+    make_label(s_content, "SEASON", 0, 48, 198,
+               &lv_font_montserrat_20, UI_INK);
+    make_label(s_content, "COMPLETE", 0, 78, 198,
+               &lv_font_montserrat_20, UI_RED);
+    make_label(s_content, "THE FINAL FLAG IS OUT", 0, 125, 198,
+               &lv_font_montserrat_14, UI_SKY_DARK);
+    make_label(s_content, "CALENDAR + POINTS STAY", 0, 154, 198,
+               &lv_font_montserrat_14, UI_INK);
+    make_label(s_content, "AVAILABLE OFFLINE", 0, 177, 198,
+               &lv_font_montserrat_14, UI_INK);
+    set_hint("UP PTS              DN CAL");
+}
+
 static void render_home(void)
 {
-    const pdkpass_race_t *race = &pdkpass_races[0];
+    if (s_network_state == PDKPASS_NETWORK_SETUP) {
+        render_wifi_setup();
+        return;
+    }
+    if (s_state.season_complete) {
+        render_season_complete();
+        return;
+    }
+
+    const pdkpass_race_t *race = &pdkpass_races[s_state.home_race];
     uint32_t ink = contrast_color(race->accent);
     content_reset(UI_PAPER);
 
     lv_obj_t *round = make_block(s_content, 0, 0, 55, 24, race->accent);
-    lv_obj_t *round_label = make_label(round, "R13", 0, 2, 55,
+    char round_text[8];
+    snprintf(round_text, sizeof(round_text), "R%u", race->round);
+    lv_obj_t *round_label = make_label(round, round_text, 0, 2, 55,
                                        &lv_font_montserrat_14, ink);
     lv_obj_set_style_text_align(round_label, LV_TEXT_ALIGN_CENTER, 0);
     make_label(s_content, "NEXT RACE", 64, 2, 130,
@@ -94,7 +154,9 @@ static void render_home(void)
                &lv_font_montserrat_14, UI_SKY_DARK);
 
     lv_obj_t *weekend = make_block(s_content, 0, 86, 198, 31, race->accent);
-    lv_obj_t *weekend_label = make_label(weekend, "04-06 SEP  |  2026", 0, 6,
+    char weekend_text[32];
+    snprintf(weekend_text, sizeof(weekend_text), "%s  |  2026", race->weekend);
+    lv_obj_t *weekend_label = make_label(weekend, weekend_text, 0, 6,
                                          198, &lv_font_montserrat_14, ink);
     lv_obj_set_style_text_align(weekend_label, LV_TEXT_ALIGN_CENTER, 0);
 
@@ -254,6 +316,55 @@ static void battery_tick(lv_timer_t *timer)
     }
 }
 
+static void clock_tick(lv_timer_t *timer)
+{
+    if (!s_time_valid) return;
+    int64_t now = (int64_t)time(NULL);
+    size_t previous = s_state.season_complete ? pdkpass_race_count
+                                              : s_state.home_race;
+    size_t next = pdkpass_schedule_next_race(now, pdkpass_races,
+                                             pdkpass_race_count);
+    pdkpass_state_set_home_race(&s_state, next, pdkpass_race_count);
+    if (previous != next && s_state.page == PDKPASS_PAGE_HOME) render();
+
+    int64_t deadline = pdkpass_schedule_next_check(now, pdkpass_races,
+                                                   pdkpass_race_count);
+    uint64_t delay_ms = deadline > now ? (uint64_t)(deadline - now) * 1000U
+                                       : 1000U;
+    if (delay_ms > UINT32_MAX) delay_ms = UINT32_MAX;
+    lv_timer_set_period(timer ? timer : s_clock_timer, (uint32_t)delay_ms);
+}
+
+static void update_network_label(void)
+{
+    const char *text = "NET ...";
+    uint32_t color = UI_SKY_DARK;
+    switch (s_network_state) {
+    case PDKPASS_NETWORK_SETUP:
+        text = "SETUP";
+        color = UI_RED;
+        break;
+    case PDKPASS_NETWORK_CONNECTING:
+        text = "WIFI...";
+        break;
+    case PDKPASS_NETWORK_SYNCING:
+        text = "TIME...";
+        break;
+    case PDKPASS_NETWORK_ONLINE:
+        text = "ONLINE";
+        color = 0x00843D;
+        break;
+    case PDKPASS_NETWORK_OFFLINE:
+        text = "OFFLINE";
+        color = UI_RED;
+        break;
+    default:
+        break;
+    }
+    lv_label_set_text(s_network, text);
+    lv_obj_set_style_text_color(s_network, lv_color_hex(color), 0);
+}
+
 // Save battery without making an unverified claim about GPIO wake support. The
 // display dims after 30 seconds and turns off after 90; the next click wakes it.
 static void idle_tick(lv_timer_t *timer)
@@ -279,6 +390,8 @@ void pdkpass_ui_enter(bool battery_available)
     s_screen = ui_pixel_screen_create("PDKPASS");
     s_content = ui_pixel_panel_create(s_screen, CONTENT_X, CONTENT_Y,
                                        CONTENT_W, CONTENT_H, UI_PAPER);
+    s_network = make_label(s_screen, "NET ...", 96, 28, 64,
+                           &lv_font_montserrat_14, UI_SKY_DARK);
     s_battery = make_label(s_screen, "BAT --", 163, 28, 65,
                            &lv_font_montserrat_14, UI_INK);
     s_hint = make_label(s_screen, "", 8, 268, 184,
@@ -289,7 +402,24 @@ void pdkpass_ui_enter(bool battery_available)
     battery_tick(NULL);
     s_battery_timer = lv_timer_create(battery_tick, 60000, NULL);
     s_idle_timer = lv_timer_create(idle_tick, 1000, NULL);
+    s_clock_timer = lv_timer_create(clock_tick, CLOCK_FALLBACK_PERIOD_MS, NULL);
     lv_screen_load(s_screen);
+}
+
+void pdkpass_ui_network_update(const pdkpass_network_update_t *update)
+{
+    if (!update) return;
+    pdkpass_network_state_t previous_state = s_network_state;
+    s_network_state = update->state;
+    s_time_valid = update->time_valid;
+    snprintf(s_setup_ssid, sizeof(s_setup_ssid), "%s",
+             update->setup_ssid ? update->setup_ssid : "");
+    snprintf(s_setup_password, sizeof(s_setup_password), "%s",
+             update->setup_password ? update->setup_password : "");
+    update_network_label();
+    clock_tick(NULL);
+    if (previous_state != s_network_state &&
+        s_state.page == PDKPASS_PAGE_HOME) render();
 }
 
 void pdkpass_ui_key(bsp_btn_t btn, bsp_btn_ev_t ev)

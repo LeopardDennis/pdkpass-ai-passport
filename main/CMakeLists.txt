@@ -4,7 +4,12 @@ idf_component_register(
          "ui_pixel_math.c"
          "pdkpass_data.c"
          "pdkpass_model.c"
+         "pdkpass_network.c"
+         "pdkpass_schedule.c"
+         "pdkpass_screenshot.c"
          "pdkpass_ui.c"
+         "pdkpass_wifi_form.c"
     INCLUDE_DIRS "."
-    REQUIRES bsp esp_hw_support
+    REQUIRES bsp esp_event esp_http_server esp_hw_support esp_netif esp_wifi
+             esp_driver_usb_serial_jtag lwip nvs_flash
 )

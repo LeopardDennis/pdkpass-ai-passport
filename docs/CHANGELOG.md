@@ -11,6 +11,11 @@
   details, race-specific colours, battery status, and idle backlight control.
 - Added a hardware-independent PDKPASS navigation state machine and host tests,
   plus fork-owned bilingual product READMEs and an official-data snapshot note.
+- Added the read-only `FAP_SCREENSHOT_V1` serial capture service required for
+  verified AI Passport community release covers.
+- Added app-free browser provisioning, persisted Wi-Fi after connection
+  verification, six-hour network time synchronization, offline time fallback,
+  Beijing-time automatic race selection, and a season-complete home state.
 - Made mini-program BLE install compatibility a template-level invariant: fixed
   protected `cardid`/Recovery partitions, retained the five-second UP-key
   Recovery boot hook, and added CI validation for merged-image structure,

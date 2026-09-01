@@ -16,6 +16,18 @@ void pdkpass_state_init(pdkpass_state_t *state)
     state->detail_origin = PDKPASS_PAGE_HOME;
     state->selected_race = 0;
     state->selected_driver = 0;
+    state->home_race = 0;
+    state->season_complete = false;
+}
+
+void pdkpass_state_set_home_race(pdkpass_state_t *state, size_t race_index,
+                                 size_t race_count)
+{
+    state->season_complete = race_index >= race_count;
+    state->home_race = state->season_complete ? 0 : race_index;
+    if (state->page == PDKPASS_PAGE_HOME && !state->season_complete) {
+        state->selected_race = state->home_race;
+    }
 }
 
 // Pure navigation state machine. UI rendering and hardware access intentionally
@@ -26,8 +38,16 @@ void pdkpass_state_handle(pdkpass_state_t *state, pdkpass_input_t input,
     switch (state->page) {
     case PDKPASS_PAGE_HOME:
         if (input == PDKPASS_INPUT_UP) state->page = PDKPASS_PAGE_STANDINGS;
-        if (input == PDKPASS_INPUT_DOWN) state->page = PDKPASS_PAGE_CALENDAR;
-        if (input == PDKPASS_INPUT_OK && race_count > 0) {
+        if (input == PDKPASS_INPUT_DOWN) {
+            if (race_count > 0) {
+                state->selected_race = state->season_complete ? race_count - 1
+                                                              : state->home_race;
+            }
+            state->page = PDKPASS_PAGE_CALENDAR;
+        }
+        if (input == PDKPASS_INPUT_OK && race_count > 0 &&
+            !state->season_complete) {
+            state->selected_race = state->home_race;
             state->detail_origin = PDKPASS_PAGE_HOME;
             state->page = PDKPASS_PAGE_RACE_DETAIL;
         }

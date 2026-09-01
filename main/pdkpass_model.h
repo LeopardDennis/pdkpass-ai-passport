@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <stddef.h>
 
 typedef enum {
@@ -21,8 +22,12 @@ typedef struct {
     pdkpass_page_t detail_origin;
     size_t selected_race;
     size_t selected_driver;
+    size_t home_race;
+    bool season_complete;
 } pdkpass_state_t;
 
 void pdkpass_state_init(pdkpass_state_t *state);
+void pdkpass_state_set_home_race(pdkpass_state_t *state, size_t race_index,
+                                 size_t race_count);
 void pdkpass_state_handle(pdkpass_state_t *state, pdkpass_input_t input,
                           size_t race_count, size_t driver_count);

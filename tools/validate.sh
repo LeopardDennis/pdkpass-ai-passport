@@ -32,6 +32,14 @@ run_static_checks() {
         tests/test_pdkpass_model.c main/pdkpass_model.c \
         -o "${test_dir}/test_pdkpass_model"
     "${test_dir}/test_pdkpass_model"
+    "${CC:-cc}" -std=c11 -Wall -Wextra -Werror -Imain \
+        tests/test_pdkpass_schedule.c main/pdkpass_schedule.c main/pdkpass_data.c \
+        -o "${test_dir}/test_pdkpass_schedule"
+    "${test_dir}/test_pdkpass_schedule"
+    "${CC:-cc}" -std=c11 -Wall -Wextra -Werror -Imain \
+        tests/test_pdkpass_wifi_form.c main/pdkpass_wifi_form.c \
+        -o "${test_dir}/test_pdkpass_wifi_form"
+    "${test_dir}/test_pdkpass_wifi_form"
     python3 tests/test_verify_firmware.py
     rm -rf "${test_dir}"
     echo "Host tests: PASS"

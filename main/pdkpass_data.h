@@ -14,6 +14,8 @@ typedef struct {
     unsigned circuit_length_m;
     unsigned laps;
     uint32_t accent;
+    // UTC epoch after which the home screen advances to the next round.
+    int64_t switch_at_utc;
 } pdkpass_race_t;
 
 typedef struct {
