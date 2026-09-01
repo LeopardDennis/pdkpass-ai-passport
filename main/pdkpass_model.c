@@ -16,6 +16,7 @@ void pdkpass_state_init(pdkpass_state_t *state)
     state->detail_origin = PDKPASS_PAGE_HOME;
     state->selected_race = 0;
     state->selected_driver = 0;
+    state->selected_session = PDKPASS_SESSION_FP1;
     state->home_race = 0;
     state->season_complete = false;
 }
@@ -81,8 +82,23 @@ void pdkpass_state_handle(pdkpass_state_t *state, pdkpass_input_t input,
             state->selected_race = wrap_previous(state->selected_race, race_count);
         } else if (input == PDKPASS_INPUT_DOWN) {
             state->selected_race = wrap_next(state->selected_race, race_count);
-        } else if (input == PDKPASS_INPUT_OK || input == PDKPASS_INPUT_BACK) {
+        } else if (input == PDKPASS_INPUT_OK) {
+            state->selected_session = PDKPASS_SESSION_FP1;
+            state->page = PDKPASS_PAGE_RESULTS;
+        } else if (input == PDKPASS_INPUT_BACK) {
             state->page = state->detail_origin;
+        }
+        break;
+
+    case PDKPASS_PAGE_RESULTS:
+        if (input == PDKPASS_INPUT_UP) {
+            state->selected_session = (pdkpass_session_kind_t)wrap_previous(
+                state->selected_session, PDKPASS_SESSION_COUNT);
+        } else if (input == PDKPASS_INPUT_DOWN) {
+            state->selected_session = (pdkpass_session_kind_t)wrap_next(
+                state->selected_session, PDKPASS_SESSION_COUNT);
+        } else if (input == PDKPASS_INPUT_OK || input == PDKPASS_INPUT_BACK) {
+            state->page = PDKPASS_PAGE_RACE_DETAIL;
         }
         break;
     }

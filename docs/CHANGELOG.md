@@ -7,7 +7,7 @@
 ## Unreleased
 
 - Replaced the hardware demo menu with the offline-first PDKPASS application:
-  next-race dashboard, remaining 2026 calendar, full driver standings, race
+  next-race dashboard, current-season calendar, full driver standings, race
   details, race-specific colours, battery status, and idle backlight control.
 - Added a hardware-independent PDKPASS navigation state machine and host tests,
   plus fork-owned bilingual product READMEs and an official-data snapshot note.
@@ -16,6 +16,12 @@
 - Added app-free browser provisioning, persisted Wi-Fi after connection
   verification, six-hour network time synchronization, offline time fallback,
   Beijing-time automatic race selection, and a season-complete home state.
+- Added delayed, unauthenticated OpenF1 historical-result sync for FP1, FP2,
+  FP3, sprint qualifying, sprint, qualifying, and race podiums, with low-rate
+  retry, offline NVS caching, and a per-round results screen.
+- Added year-aware OpenF1 season synchronization for up to 24 Grands Prix and
+  24 drivers, Beijing-midnight and post-race checks, guarded new-year adoption,
+  offline season persistence, and a compact year-isolated podium cache.
 - Made mini-program BLE install compatibility a template-level invariant: fixed
   protected `cardid`/Recovery partitions, retained the five-second UP-key
   Recovery boot hook, and added CI validation for merged-image structure,

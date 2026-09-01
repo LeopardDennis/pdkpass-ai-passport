@@ -8,6 +8,7 @@ int main(void)
     assert(state.page == PDKPASS_PAGE_HOME);
     assert(state.selected_race == 0);
     assert(state.home_race == 0);
+    assert(state.selected_session == PDKPASS_SESSION_FP1);
     assert(!state.season_complete);
 
     pdkpass_state_set_home_race(&state, 3, 11);
@@ -35,6 +36,14 @@ int main(void)
     pdkpass_state_handle(&state, PDKPASS_INPUT_DOWN, 11, 23);
     assert(state.selected_race == 3);
     pdkpass_state_handle(&state, PDKPASS_INPUT_OK, 11, 23);
+    assert(state.page == PDKPASS_PAGE_RESULTS);
+    pdkpass_state_handle(&state, PDKPASS_INPUT_UP, 11, 23);
+    assert(state.selected_session == PDKPASS_SESSION_RACE);
+    pdkpass_state_handle(&state, PDKPASS_INPUT_DOWN, 11, 23);
+    assert(state.selected_session == PDKPASS_SESSION_FP1);
+    pdkpass_state_handle(&state, PDKPASS_INPUT_OK, 11, 23);
+    assert(state.page == PDKPASS_PAGE_RACE_DETAIL);
+    pdkpass_state_handle(&state, PDKPASS_INPUT_BACK, 11, 23);
     assert(state.page == PDKPASS_PAGE_CALENDAR);
 
     pdkpass_state_handle(&state, PDKPASS_INPUT_BACK, 11, 23);

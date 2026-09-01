@@ -37,6 +37,14 @@ run_static_checks() {
         -o "${test_dir}/test_pdkpass_schedule"
     "${test_dir}/test_pdkpass_schedule"
     "${CC:-cc}" -std=c11 -Wall -Wextra -Werror -Imain \
+        tests/test_pdkpass_results_core.c main/pdkpass_results_core.c \
+        -o "${test_dir}/test_pdkpass_results_core"
+    "${test_dir}/test_pdkpass_results_core"
+    "${CC:-cc}" -std=c11 -Wall -Wextra -Werror -Imain \
+        tests/test_pdkpass_season_core.c main/pdkpass_season_core.c \
+        -o "${test_dir}/test_pdkpass_season_core"
+    "${test_dir}/test_pdkpass_season_core"
+    "${CC:-cc}" -std=c11 -Wall -Wextra -Werror -Imain \
         tests/test_pdkpass_wifi_form.c main/pdkpass_wifi_form.c \
         -o "${test_dir}/test_pdkpass_wifi_form"
     "${test_dir}/test_pdkpass_wifi_form"

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "pdkpass_results_core.h"
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -8,6 +9,7 @@ typedef enum {
     PDKPASS_PAGE_CALENDAR,
     PDKPASS_PAGE_STANDINGS,
     PDKPASS_PAGE_RACE_DETAIL,
+    PDKPASS_PAGE_RESULTS,
 } pdkpass_page_t;
 
 typedef enum {
@@ -22,6 +24,7 @@ typedef struct {
     pdkpass_page_t detail_origin;
     size_t selected_race;
     size_t selected_driver;
+    pdkpass_session_kind_t selected_session;
     size_t home_race;
     bool season_complete;
 } pdkpass_state_t;

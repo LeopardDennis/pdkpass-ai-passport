@@ -4,7 +4,9 @@
 #include "bsp_display.h"
 #include "pdkpass_data.h"
 #include "pdkpass_model.h"
+#include "pdkpass_results.h"
 #include "pdkpass_schedule.h"
+#include "pdkpass_season.h"
 #include "ui_pixel.h"
 #include "lvgl.h"
 #include <limits.h>
@@ -32,6 +34,7 @@ static lv_timer_t *s_battery_timer;
 static lv_timer_t *s_idle_timer;
 static lv_timer_t *s_clock_timer;
 static pdkpass_state_t s_state;
+static pdkpass_season_snapshot_t s_season;
 static bool s_battery_available;
 static bool s_time_valid;
 static unsigned s_idle_seconds;
@@ -109,7 +112,9 @@ static void render_wifi_setup(void)
 static void render_season_complete(void)
 {
     content_reset(UI_PAPER);
-    make_label(s_content, "2026", 0, 4, 198,
+    char year[8];
+    snprintf(year, sizeof(year), "%u", s_season.year);
+    make_label(s_content, year, 0, 4, 198,
                &lv_font_montserrat_14, UI_SKY_DARK);
     make_label(s_content, "SEASON", 0, 48, 198,
                &lv_font_montserrat_20, UI_INK);
@@ -135,7 +140,11 @@ static void render_home(void)
         return;
     }
 
-    const pdkpass_race_t *race = &pdkpass_races[s_state.home_race];
+    if (s_state.home_race >= s_season.race_count) {
+        render_season_complete();
+        return;
+    }
+    const pdkpass_race_t *race = &s_season.races[s_state.home_race];
     uint32_t ink = contrast_color(race->accent);
     content_reset(UI_PAPER);
 
@@ -154,8 +163,9 @@ static void render_home(void)
                &lv_font_montserrat_14, UI_SKY_DARK);
 
     lv_obj_t *weekend = make_block(s_content, 0, 86, 198, 31, race->accent);
-    char weekend_text[32];
-    snprintf(weekend_text, sizeof(weekend_text), "%s  |  2026", race->weekend);
+    char weekend_text[40];
+    snprintf(weekend_text, sizeof(weekend_text), "%s  |  %u", race->weekend,
+             s_season.year);
     lv_obj_t *weekend_label = make_label(weekend, weekend_text, 0, 6,
                                          198, &lv_font_montserrat_14, ink);
     lv_obj_set_style_text_align(weekend_label, LV_TEXT_ALIGN_CENTER, 0);
@@ -177,13 +187,15 @@ static void render_calendar(void)
 
     make_label(s_content, "UPCOMING RACES", 0, 0, 150,
                &lv_font_montserrat_14, UI_INK);
-    make_label(s_content, "2026", 155, 0, 43,
+    char year[8];
+    snprintf(year, sizeof(year), "%u", s_season.year);
+    make_label(s_content, year, 155, 0, 43,
                &lv_font_montserrat_14, UI_SKY_DARK);
 
     for (size_t row = 0; row < CALENDAR_ROWS; row++) {
         size_t index = start + row;
-        if (index >= pdkpass_race_count) break;
-        const pdkpass_race_t *race = &pdkpass_races[index];
+        if (index >= s_season.race_count) break;
+        const pdkpass_race_t *race = &s_season.races[index];
         bool selected = index == s_state.selected_race;
         uint32_t bg = selected ? race->accent : UI_MUTED;
         uint32_t ink = selected ? contrast_color(bg) : UI_INK;
@@ -202,7 +214,7 @@ static void render_calendar(void)
     char page[20];
     snprintf(page, sizeof(page), "%u / %u",
              (unsigned)(s_state.selected_race + 1),
-             (unsigned)pdkpass_race_count);
+             (unsigned)s_season.race_count);
     lv_obj_t *page_label = make_label(s_content, page, 135, 190, 63,
                                       &lv_font_montserrat_14, UI_SKY_DARK);
     lv_obj_set_style_text_align(page_label, LV_TEXT_ALIGN_RIGHT, 0);
@@ -216,13 +228,22 @@ static void render_standings(void)
 
     make_label(s_content, "DRIVER STANDINGS", 0, 0, 150,
                &lv_font_montserrat_14, UI_INK);
-    make_label(s_content, "31 AUG", 150, 0, 48,
+    make_label(s_content, s_season.standings_as_of, 145, 0, 53,
                &lv_font_montserrat_14, UI_SKY_DARK);
+
+    if (s_season.driver_count == 0U) {
+        make_label(s_content, "STANDINGS PENDING", 0, 74, 198,
+                   &lv_font_montserrat_20, UI_RED);
+        make_label(s_content, "UPDATES AFTER FIRST RACE", 0, 112, 198,
+                   &lv_font_montserrat_14, UI_SKY_DARK);
+        set_hint("HOLD HOME");
+        return;
+    }
 
     for (size_t row = 0; row < STANDINGS_ROWS; row++) {
         size_t index = start + row;
-        if (index >= pdkpass_driver_count) break;
-        const pdkpass_driver_t *driver = &pdkpass_drivers[index];
+        if (index >= s_season.driver_count) break;
+        const pdkpass_driver_t *driver = &s_season.drivers[index];
         bool selected = index == s_state.selected_driver;
         uint32_t bg = selected ? driver->accent : UI_MUTED;
         uint32_t ink = selected ? contrast_color(bg) : UI_INK;
@@ -232,7 +253,14 @@ static void render_standings(void)
         char position[5];
         char points[8];
         snprintf(position, sizeof(position), "%u", driver->position);
-        snprintf(points, sizeof(points), "%u", driver->points);
+        if (driver->points_tenths % 10U == 0U) {
+            snprintf(points, sizeof(points), "%u",
+                     driver->points_tenths / 10U);
+        } else {
+            snprintf(points, sizeof(points), "%u.%u",
+                     driver->points_tenths / 10U,
+                     driver->points_tenths % 10U);
+        }
         make_label(card, position, 5, 2, 22, &lv_font_montserrat_14, ink);
         make_label(card, driver->name, 31, 2, 110, &lv_font_montserrat_14, ink);
         lv_obj_t *points_label = make_label(card, points, 151, 2, 40,
@@ -240,7 +268,8 @@ static void render_standings(void)
         lv_obj_set_style_text_align(points_label, LV_TEXT_ALIGN_RIGHT, 0);
     }
 
-    const pdkpass_driver_t *selected = &pdkpass_drivers[s_state.selected_driver];
+    const pdkpass_driver_t *selected =
+        &s_season.drivers[s_state.selected_driver];
     char footer[64];
     snprintf(footer, sizeof(footer), "%s  |  %s", selected->code, selected->team);
     make_label(s_content, footer, 1, 190, 197,
@@ -250,7 +279,8 @@ static void render_standings(void)
 
 static void render_detail(void)
 {
-    const pdkpass_race_t *race = &pdkpass_races[s_state.selected_race];
+    if (s_state.selected_race >= s_season.race_count) return;
+    const pdkpass_race_t *race = &s_season.races[s_state.selected_race];
     uint32_t ink = contrast_color(race->accent);
     content_reset(UI_PAPER);
 
@@ -275,13 +305,79 @@ static void render_detail(void)
                &lv_font_montserrat_14, race->accent);
 
     char stats[48];
-    snprintf(stats, sizeof(stats), "%u.%03u KM  |  %u LAPS",
-             race->circuit_length_m / 1000,
-             race->circuit_length_m % 1000,
-             race->laps);
+    if (race->circuit_length_m > 0U && race->laps > 0U) {
+        snprintf(stats, sizeof(stats), "%u.%03u KM  |  %u LAPS",
+                 race->circuit_length_m / 1000,
+                 race->circuit_length_m % 1000,
+                 race->laps);
+    } else {
+        snprintf(stats, sizeof(stats), "-- KM  |  -- LAPS");
+    }
     make_label(s_content, stats, 2, 181, 194,
                &lv_font_montserrat_14, UI_INK);
-    set_hint("UP/DN RACE   OK/HOLD BACK");
+    set_hint("UP/DN RACE  OK RESULTS  HOLD BACK");
+}
+
+static void render_results(void)
+{
+    if (s_state.selected_race >= s_season.race_count) return;
+    const pdkpass_race_t *race = &s_season.races[s_state.selected_race];
+    uint32_t ink = contrast_color(race->accent);
+    content_reset(UI_PAPER);
+
+    lv_obj_t *header = make_block(s_content, 0, 0, 198, 35, race->accent);
+    char round_text[16];
+    snprintf(round_text, sizeof(round_text), "R%u RESULTS", race->round);
+    make_label(header, round_text, 7, 8, 105, &lv_font_montserrat_14, ink);
+    lv_obj_t *country = make_label(header, race->country, 110, 8, 80,
+                                   &lv_font_montserrat_14, ink);
+    lv_obj_set_style_text_align(country, LV_TEXT_ALIGN_RIGHT, 0);
+
+    make_label(s_content, pdkpass_session_label(s_state.selected_session),
+               1, 44, 196, &lv_font_montserrat_20, UI_INK);
+
+    pdkpass_result_snapshot_t result;
+    bool available = pdkpass_results_get(s_state.selected_race,
+                                         s_state.selected_session, &result);
+    if (!available || result.status != PDKPASS_RESULT_READY) {
+        const char *status = "CONNECT TO UPDATE";
+        const char *detail = "NO RESULT CACHED";
+        if (available && result.status == PDKPASS_RESULT_NOT_HELD) {
+            status = "NO SESSION";
+            detail = "NOT ON THIS WEEKEND";
+        } else if (available && result.status == PDKPASS_RESULT_SCHEDULED) {
+            status = "RESULT PENDING";
+            detail = "SYNC AFTER SESSION";
+        } else if (available && result.status == PDKPASS_RESULT_CANCELLED) {
+            status = "SESSION CANCELLED";
+            detail = "NO CLASSIFICATION";
+        }
+        make_label(s_content, status, 1, 91, 196,
+                   &lv_font_montserrat_20, race->accent);
+        make_label(s_content, detail, 1, 125, 196,
+                   &lv_font_montserrat_14, UI_SKY_DARK);
+        make_label(s_content, "FREE RESULTS: ABOUT +30 MIN", 1, 171, 196,
+                   &lv_font_montserrat_14, UI_INK);
+    } else {
+        for (size_t i = 0; i < PDKPASS_PODIUM_SIZE; i++) {
+            const pdkpass_podium_driver_t *driver = &result.podium[i];
+            int y = 70 + (int)i * 40;
+            lv_obj_t *row = make_block(s_content, 0, y, 198, 36,
+                                       i == 0 ? race->accent : UI_MUTED);
+            uint32_t row_ink = i == 0 ? contrast_color(race->accent) : UI_INK;
+            char position[4];
+            snprintf(position, sizeof(position), "%u", driver->position);
+            make_label(row, position, 6, 2, 20,
+                       &lv_font_montserrat_20, row_ink);
+            make_label(row, driver->code, 34, 2, 42,
+                       &lv_font_montserrat_14, row_ink);
+            make_label(row, driver->name, 78, 2, 115,
+                       &lv_font_montserrat_14, row_ink);
+            make_label(row, driver->team, 34, 19, 159,
+                       &lv_font_montserrat_14, row_ink);
+        }
+    }
+    set_hint("UP/DN SESSION       OK/HOLD BACK");
 }
 
 static void render(void)
@@ -298,6 +394,9 @@ static void render(void)
         break;
     case PDKPASS_PAGE_RACE_DETAIL:
         render_detail();
+        break;
+    case PDKPASS_PAGE_RESULTS:
+        render_results();
         break;
     }
 }
@@ -320,15 +419,15 @@ static void clock_tick(lv_timer_t *timer)
 {
     if (!s_time_valid) return;
     int64_t now = (int64_t)time(NULL);
-    size_t previous = s_state.season_complete ? pdkpass_race_count
+    size_t previous = s_state.season_complete ? s_season.race_count
                                               : s_state.home_race;
-    size_t next = pdkpass_schedule_next_race(now, pdkpass_races,
-                                             pdkpass_race_count);
-    pdkpass_state_set_home_race(&s_state, next, pdkpass_race_count);
+    size_t next = pdkpass_schedule_next_race(now, s_season.races,
+                                             s_season.race_count);
+    pdkpass_state_set_home_race(&s_state, next, s_season.race_count);
     if (previous != next && s_state.page == PDKPASS_PAGE_HOME) render();
 
-    int64_t deadline = pdkpass_schedule_next_check(now, pdkpass_races,
-                                                   pdkpass_race_count);
+    int64_t deadline = pdkpass_schedule_next_check(now, s_season.races,
+                                                   s_season.race_count);
     uint64_t delay_ms = deadline > now ? (uint64_t)(deadline - now) * 1000U
                                        : 1000U;
     if (delay_ms > UINT32_MAX) delay_ms = UINT32_MAX;
@@ -386,6 +485,7 @@ void pdkpass_ui_enter(bool battery_available)
     s_idle_seconds = 0;
     s_idle_stage = 0;
     pdkpass_state_init(&s_state);
+    if (!pdkpass_season_snapshot(&s_season)) memset(&s_season, 0, sizeof(s_season));
 
     s_screen = ui_pixel_screen_create("PDKPASS");
     s_content = ui_pixel_panel_create(s_screen, CONTENT_X, CONTENT_Y,
@@ -422,6 +522,36 @@ void pdkpass_ui_network_update(const pdkpass_network_update_t *update)
         s_state.page == PDKPASS_PAGE_HOME) render();
 }
 
+void pdkpass_ui_results_update(size_t race_index)
+{
+    if (s_state.page == PDKPASS_PAGE_RESULTS &&
+        s_state.selected_race == race_index) render();
+}
+
+void pdkpass_ui_season_update(void)
+{
+    pdkpass_season_snapshot_t updated;
+    if (!pdkpass_season_snapshot(&updated)) return;
+    s_season = updated;
+    if (s_state.selected_race >= s_season.race_count) {
+        s_state.selected_race = s_season.race_count > 0U
+                                    ? s_season.race_count - 1U
+                                    : 0U;
+    }
+    if (s_state.selected_driver >= s_season.driver_count) {
+        s_state.selected_driver = s_season.driver_count > 0U
+                                      ? s_season.driver_count - 1U
+                                      : 0U;
+    }
+    if (s_time_valid) {
+        int64_t now = (int64_t)time(NULL);
+        size_t next = pdkpass_schedule_next_race(now, s_season.races,
+                                                 s_season.race_count);
+        pdkpass_state_set_home_race(&s_state, next, s_season.race_count);
+    }
+    render();
+}
+
 void pdkpass_ui_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
     bool was_off = s_idle_stage == 2;
@@ -446,7 +576,10 @@ void pdkpass_ui_key(bsp_btn_t btn, bsp_btn_ev_t ev)
     }
 
     pdkpass_state_handle(&s_state, input,
-                         pdkpass_race_count, pdkpass_driver_count);
+                         s_season.race_count, s_season.driver_count);
     render();
+    if (s_state.page == PDKPASS_PAGE_RESULTS) {
+        pdkpass_results_request_race(s_state.selected_race);
+    }
     ui_pixel_mascot_jump(s_mascot);
 }
