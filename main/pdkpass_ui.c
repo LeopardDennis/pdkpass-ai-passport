@@ -7,8 +7,10 @@
 #include "pdkpass_results.h"
 #include "pdkpass_schedule.h"
 #include "pdkpass_season.h"
+#include "pdkpass_theme.h"
 #include "pdkpass_tracks.h"
 #include "ui_pixel.h"
+#include "ui_pixel_math.h"
 #include "lvgl.h"
 
 #include <limits.h>
@@ -133,6 +135,25 @@ static lv_obj_t *make_medium_label(lv_obj_t *parent, const char *text,
     return label;
 }
 
+static lv_obj_t *make_fit_zoom_label(lv_obj_t *parent, const char *text,
+                                     int x, int y, int width, uint32_t color)
+{
+    const int margin = 8;
+    const int available_width = width - margin;
+    lv_point_t text_size;
+    lv_text_get_size(&text_size, text, &lv_font_unscii_16, 0, 0,
+                     LV_COORD_MAX, LV_TEXT_FLAG_NONE);
+    int scale = ui_pixel_fit_scale(text_size.x, available_width, 512);
+    if (scale >= 512) {
+        return make_zoom_label(parent, text, x, y, width, color);
+    }
+    if (scale >= 256) {
+        return make_center_label(parent, text, x + margin / 2, y + 8,
+                                 available_width, &lv_font_unscii_16, color);
+    }
+    return make_medium_label(parent, text, x, y, width, color);
+}
+
 static uint32_t contrast_color(uint32_t color)
 {
     unsigned r = (color >> 16) & 0xff;
@@ -152,6 +173,16 @@ static void content_reset(uint32_t top, uint32_t bottom)
 {
     lv_obj_clean(s_content);
     set_gradient(s_content, top, bottom);
+}
+
+static pdkpass_theme_t theme_for_race(const pdkpass_race_t *race)
+{
+    pdkpass_theme_t theme = {
+        .top = UI_SKY,
+        .bottom = UI_SKY_DARK,
+    };
+    if (race) pdkpass_theme_get(race->circuit, &theme);
+    return theme;
 }
 
 static void set_title(const char *text)
@@ -258,8 +289,14 @@ static void update_home_status(void)
     } else {
         snprintf(text, sizeof(text), "%s | --.--", network_word());
     }
-    set_status(text, s_network_state == PDKPASS_NETWORK_OFFLINE ? UI_RED
-                                                               : UI_SKY);
+    uint32_t background = UI_SKY;
+    if (s_network_state == PDKPASS_NETWORK_OFFLINE) {
+        background = UI_RED;
+    } else if (!s_state.season_complete &&
+               s_state.home_race < s_season.race_count) {
+        background = theme_for_race(&s_season.races[s_state.home_race]).top;
+    }
+    set_status(text, background);
 }
 
 static void make_progress(size_t current, size_t total)
@@ -290,16 +327,18 @@ static void render_home(void)
     }
 
     const pdkpass_race_t *race = &s_season.races[s_state.home_race];
+    pdkpass_theme_t theme = theme_for_race(race);
     char title[20];
     title_for_season(title, sizeof(title), "PDKPASS");
     set_title(title);
     update_home_status();
-    content_reset(UI_SKY, UI_SKY_DARK);
+    ui_pixel_screen_set_theme(s_screen, theme.top, theme.bottom);
+    content_reset(theme.top, theme.bottom);
 
     char round[8];
     snprintf(round, sizeof(round), "R%u", race->round);
     make_zoom_label(s_content, round, 0, 0, INNER_W, 0xFFFFFF);
-    make_zoom_label(s_content, race->country, 0, 35, INNER_W, UI_PAPER);
+    make_fit_zoom_label(s_content, race->country, 0, 35, INNER_W, UI_PAPER);
     make_center_label(s_content, race->circuit, 0, 73, INNER_W,
                       &lv_font_unscii_16, 0xFFFFFF);
     char weekend[20];
@@ -330,7 +369,7 @@ static void render_home(void)
     make_center_label(s_content, page, 0, 146, INNER_W,
                       &lv_font_unscii_16, UI_PAPER);
     make_progress(s_state.home_race, s_season.race_count);
-    set_hint("UP/DN BROWSE      OK DETAIL");
+    set_hint("UP/DOWN BROWSE  OK DETAIL");
 }
 
 static void render_calendar(void)
@@ -371,7 +410,7 @@ static void render_calendar(void)
              (unsigned)s_season.race_count);
     make_center_label(s_content, page, 0, 165, INNER_W,
                       &lv_font_unscii_8, UI_PAPER);
-    set_hint("UP/DN SEL  OK OPEN  HOLD HM");
+    set_hint("UP/DOWN SEL  OK  HOLD HOME");
 }
 
 static void render_standings(void)
@@ -427,7 +466,7 @@ static void render_standings(void)
         &s_season.drivers[s_state.selected_driver];
     make_center_label(s_content, selected->team, 0, 170, INNER_W,
                       &lv_font_unscii_8, UI_PAPER);
-    set_hint("UP/DN SCROLL    HOLD HOME");
+    set_hint("UP/DOWN SCROLL  HOLD HOME");
 }
 
 static size_t build_track_points(const char *circuit)
@@ -466,17 +505,19 @@ static void render_detail(void)
 {
     if (s_state.selected_race >= s_season.race_count) return;
     const pdkpass_race_t *race = &s_season.races[s_state.selected_race];
+    pdkpass_theme_t theme = theme_for_race(race);
     char title[40];
     snprintf(title, sizeof(title), "%s . R%u", race->circuit, race->round);
     set_title(title);
     char status[32];
     snprintf(status, sizeof(status), "%s GP", race->country);
-    set_status(status, UI_SKY);
+    set_status(status, theme.top);
     show_status_flags();
-    content_reset(UI_SKY, UI_SKY_DARK);
+    ui_pixel_screen_set_theme(s_screen, theme.top, theme.bottom);
+    content_reset(theme.top, theme.bottom);
 
-    lv_obj_t *track = make_card(s_content, 1, 1, 208, 69, UI_SKY, 3);
-    set_gradient(track, UI_SKY, UI_SKY_DARK);
+    lv_obj_t *track = make_card(s_content, 1, 1, 208, 69, theme.top, 3);
+    set_gradient(track, theme.top, theme.bottom);
     add_track_outline(track, race->circuit);
 
     char distance[18];
@@ -491,9 +532,9 @@ static void render_detail(void)
         snprintf(laps, sizeof(laps), "-- LAPS");
     }
     lv_obj_t *distance_card = make_card(s_content, 1, 74, 101, 30,
-                                        UI_SKY_DARK, 3);
+                                        theme.bottom, 3);
     lv_obj_t *laps_card = make_card(s_content, 108, 74, 101, 30,
-                                    UI_SKY_DARK, 3);
+                                    theme.bottom, 3);
     make_medium_label(distance_card, distance, 0, 0, 95, 0xFFFFFF);
     make_medium_label(laps_card, laps, 0, 0, 95, 0xFFFFFF);
 
@@ -509,7 +550,7 @@ static void render_detail(void)
         make_center_label(row, sessions[i], 1, 4, 204,
                           &lv_font_unscii_8, UI_INK);
     }
-    set_hint("UP/DN RACE  OK RES  HOLD BK");
+    set_hint("UP/DOWN RACE OK  HOLD BACK");
 }
 
 static void render_results(void)
@@ -561,11 +602,12 @@ static void render_results(void)
                        &lv_font_unscii_8, UI_INK);
         }
     }
-    set_hint("UP/DN SESS   OK/HOLD BACK");
+    set_hint("UP/DOWN SESS  OK/HOLD BACK");
 }
 
 static void render(void)
 {
+    ui_pixel_screen_set_theme(s_screen, UI_SKY, UI_SKY_DARK);
     switch (s_state.page) {
     case PDKPASS_PAGE_HOME:
         render_home();

@@ -6,9 +6,14 @@
 
 ## Unreleased
 
+- Auto-fit home-screen country names from their measured pixel-font width so
+  long names retain side margins instead of being clipped on the narrow screen.
+- Added 23 distinct circuit-based background themes shared by the home and
+  race-detail screens, while retaining the original blue within the season.
+- Replaced ambiguous `UP/DN` navigation hints with complete `UP/DOWN` labels.
 - Rebuilt every PDKPASS screen around the approved pixel race-pass artwork,
-  including paper-ticket shadows, UNSCII type, blue gradients, per-race accent
-  panels, a circuit-outline detail card, and overflow-safe compact list rows.
+  including paper-ticket shadows, UNSCII type, race-themed gradients, per-race
+  accent panels, a circuit-outline detail card, and overflow-safe compact rows.
 - Replaced the shared approximate circuit drawing with distinct offline,
   low-resolution outlines for all 23 rounds of the 2026 season, selected by
   circuit name so calendar round changes do not mislabel known tracks.

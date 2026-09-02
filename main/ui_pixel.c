@@ -72,6 +72,23 @@ void ui_pixel_screen_set_title(lv_obj_t *screen, const char *title)
     }
 }
 
+void ui_pixel_screen_set_theme(lv_obj_t *screen, uint32_t color,
+                               uint32_t dark_color)
+{
+    if (!screen) return;
+    // ui_pixel_screen_create owns these direct children: top rail, bottom rail,
+    // left theme rail, right theme rail, title shadow, then title plate.
+    lv_obj_t *left_rail = lv_obj_get_child(screen, 2);
+    lv_obj_t *right_rail = lv_obj_get_child(screen, 3);
+    lv_obj_set_style_bg_color(screen, lv_color_hex(dark_color), 0);
+    if (left_rail) {
+        lv_obj_set_style_bg_color(left_rail, lv_color_hex(color), 0);
+    }
+    if (right_rail) {
+        lv_obj_set_style_bg_color(right_rail, lv_color_hex(dark_color), 0);
+    }
+}
+
 lv_obj_t *ui_pixel_panel_create(lv_obj_t *parent, int x, int y, int w, int h,
                                 uint32_t color)
 {
