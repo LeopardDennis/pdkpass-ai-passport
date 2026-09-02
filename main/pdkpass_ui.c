@@ -162,6 +162,25 @@ static uint32_t contrast_color(uint32_t color)
     return r * 299 + g * 587 + b * 114 > 150000 ? UI_INK : 0xFFFFFF;
 }
 
+static uint32_t result_driver_accent(const pdkpass_podium_driver_t *result,
+                                     uint32_t fallback)
+{
+    if (!result) return fallback;
+    for (size_t i = 0; i < s_season.driver_count; i++) {
+        const pdkpass_driver_t *driver = &s_season.drivers[i];
+        if (strncmp(driver->code, result->code, sizeof(driver->code)) == 0) {
+            return driver->accent;
+        }
+    }
+    for (size_t i = 0; i < s_season.driver_count; i++) {
+        const pdkpass_driver_t *driver = &s_season.drivers[i];
+        if (result->team[0] != '\0' && strcmp(driver->team, result->team) == 0) {
+            return driver->accent;
+        }
+    }
+    return fallback;
+}
+
 static void set_gradient(lv_obj_t *obj, uint32_t top, uint32_t bottom)
 {
     lv_obj_set_style_bg_color(obj, lv_color_hex(top), 0);
@@ -183,6 +202,61 @@ static pdkpass_theme_t theme_for_race(const pdkpass_race_t *race)
     };
     if (race) pdkpass_theme_get(race->circuit, &theme);
     return theme;
+}
+
+static const char *detail_session_short_label(pdkpass_session_kind_t session)
+{
+    switch (session) {
+    case PDKPASS_SESSION_FP1:
+        return "FP1";
+    case PDKPASS_SESSION_SPRINT_QUALIFYING:
+        return "SPR Q";
+    case PDKPASS_SESSION_QUALIFYING:
+        return "QUALI";
+    case PDKPASS_SESSION_RACE:
+        return "RACE";
+    default:
+        return pdkpass_session_label(session);
+    }
+}
+
+static pdkpass_session_kind_t detail_middle_session(const pdkpass_race_t *race)
+{
+    return race && strncmp(race->session_two_cn, "SPR Q", 5U) == 0
+               ? PDKPASS_SESSION_SPRINT_QUALIFYING
+               : PDKPASS_SESSION_QUALIFYING;
+}
+
+static void detail_session_line(size_t race_index,
+                                pdkpass_session_kind_t session,
+                                const char *schedule, char *output,
+                                size_t capacity)
+{
+    if (!output || capacity == 0U) return;
+    snprintf(output, capacity, "%s", schedule ? schedule : "SCHEDULE PENDING");
+
+    pdkpass_result_snapshot_t result;
+    bool available = pdkpass_results_get(race_index, session, &result);
+    if (available && result.status == PDKPASS_RESULT_READY) {
+        snprintf(output, capacity, "%s RESULT",
+                 detail_session_short_label(session));
+    } else if (available && result.status == PDKPASS_RESULT_CANCELLED) {
+        snprintf(output, capacity, "%s CANCELLED",
+                 detail_session_short_label(session));
+    } else if (available && result.status == PDKPASS_RESULT_NOT_HELD) {
+        snprintf(output, capacity, "NO SESSION");
+    } else if (s_time_valid && available && result.session_end_utc > 0 &&
+               (int64_t)time(NULL) >= result.session_end_utc) {
+        snprintf(output, capacity, "%s PENDING",
+                 detail_session_short_label(session));
+    } else if (s_time_valid && race_index < s_season.race_count &&
+               (int64_t)time(NULL) >=
+                   s_season.races[race_index].switch_at_utc) {
+        // Before session discovery completes, an entirely historical weekend
+        // is already known to be over, so its rows should not look upcoming.
+        snprintf(output, capacity, "%s PENDING",
+                 detail_session_short_label(session));
+    }
 }
 
 static void set_title(const char *text)
@@ -375,14 +449,20 @@ static void render_home(void)
 static void render_calendar(void)
 {
     size_t start = (s_state.selected_race / CALENDAR_ROWS) * CALENDAR_ROWS;
+    const pdkpass_race_t *selected = s_state.selected_race < s_season.race_count
+                                         ? &s_season.races[s_state.selected_race]
+                                         : NULL;
+    pdkpass_theme_t theme = selected ? theme_for_race(selected)
+                                     : (pdkpass_theme_t){ UI_SKY, UI_SKY_DARK };
     char title[20];
     title_for_season(title, sizeof(title), "CALENDAR");
     set_title(title);
     char status[28];
     snprintf(status, sizeof(status), "SEASON | %u RACES",
              (unsigned)s_season.race_count);
-    set_status(status, UI_SKY);
-    content_reset(UI_SKY, UI_SKY_DARK);
+    set_status(status, selected ? selected->accent : theme.top);
+    ui_pixel_screen_set_theme(s_screen, theme.top, theme.bottom);
+    content_reset(theme.top, theme.bottom);
 
     make_center_label(s_content, "UPCOMING RACES", 0, 3, INNER_W,
                       &lv_font_unscii_8, 0xFFFFFF);
@@ -538,16 +618,22 @@ static void render_detail(void)
     make_medium_label(distance_card, distance, 0, 0, 95, 0xFFFFFF);
     make_medium_label(laps_card, laps, 0, 0, 95, 0xFFFFFF);
 
-    const char *sessions[] = {
-        race->session_one_cn,
-        race->session_two_cn,
-        race->race_cn,
+    pdkpass_session_kind_t session_kinds[] = {
+        PDKPASS_SESSION_FP1,
+        detail_middle_session(race),
+        PDKPASS_SESSION_RACE,
+    };
+    const char *session_schedules[] = {
+        race->session_one_cn, race->session_two_cn, race->race_cn,
     };
     for (size_t i = 0; i < 3U; i++) {
+        char line[PDKPASS_SESSION_LINE_LEN];
+        detail_session_line(s_state.selected_race, session_kinds[i],
+                            session_schedules[i], line, sizeof(line));
         uint32_t bg = i == 2U ? UI_YELLOW : UI_PAPER;
         lv_obj_t *row = make_card(s_content, 1, 109 + (int)i * 22,
                                   208, 21, bg, 2);
-        make_center_label(row, sessions[i], 1, 4, 204,
+        make_center_label(row, line, 1, 4, 204,
                           &lv_font_unscii_8, UI_INK);
     }
     set_hint("UP/DOWN RACE OK  HOLD BACK");
@@ -569,7 +655,11 @@ static void render_results(void)
     if (!available || result.status != PDKPASS_RESULT_READY) {
         const char *state = "CONNECT TO UPDATE";
         const char *detail = "NO RESULT CACHED";
-        if (available && result.status == PDKPASS_RESULT_NOT_HELD) {
+        if (available && result.status == PDKPASS_RESULT_UNKNOWN &&
+            s_network_state == PDKPASS_NETWORK_ONLINE) {
+            state = "FETCHING RESULT";
+            detail = "OPENF1 SYNC IN PROGRESS";
+        } else if (available && result.status == PDKPASS_RESULT_NOT_HELD) {
             state = "NO SESSION";
             detail = "NOT ON THIS WEEKEND";
         } else if (available && result.status == PDKPASS_RESULT_SCHEDULED) {
@@ -584,22 +674,21 @@ static void render_results(void)
         make_center_label(s_content, "RESULTS SYNC ABOUT +30 MIN", 0, 139,
                           INNER_W, &lv_font_unscii_8, UI_PAPER);
     } else {
-        static const uint32_t podium_colors[] = {
-            UI_YELLOW, UI_PAPER, UI_ORANGE,
-        };
         for (size_t i = 0; i < PDKPASS_PODIUM_SIZE; i++) {
             const pdkpass_podium_driver_t *driver = &result.podium[i];
+            uint32_t background = result_driver_accent(driver, race->accent);
+            uint32_t ink = contrast_color(background);
             lv_obj_t *row = make_card(s_content, 2, 7 + (int)i * 55,
-                                      206, 49, podium_colors[i], 3);
+                                      206, 49, background, 3);
             char position[4];
             snprintf(position, sizeof(position), "P%u", driver->position);
-            make_label(row, position, 7, 5, 32, &lv_font_unscii_16, UI_INK);
+            make_label(row, position, 7, 5, 32, &lv_font_unscii_16, ink);
             make_label(row, driver->code, 47, 9, 29,
-                       &lv_font_unscii_8, UI_INK);
+                       &lv_font_unscii_8, ink);
             make_label(row, driver->name, 84, 5, 114,
-                       &lv_font_unscii_16, UI_INK);
+                       &lv_font_unscii_16, ink);
             make_label(row, driver->team, 45, 27, 153,
-                       &lv_font_unscii_8, UI_INK);
+                       &lv_font_unscii_8, ink);
         }
     }
     set_hint("UP/DOWN SESS  OK/HOLD BACK");
@@ -746,7 +835,8 @@ void pdkpass_ui_network_update(const pdkpass_network_update_t *update)
 
 void pdkpass_ui_results_update(size_t race_index)
 {
-    if (s_state.page == PDKPASS_PAGE_RESULTS &&
+    if ((s_state.page == PDKPASS_PAGE_RESULTS ||
+         s_state.page == PDKPASS_PAGE_RACE_DETAIL) &&
         s_state.selected_race == race_index) render();
 }
 
@@ -800,7 +890,8 @@ void pdkpass_ui_key(bsp_btn_t btn, bsp_btn_ev_t ev)
     pdkpass_state_handle(&s_state, input,
                          s_season.race_count, s_season.driver_count);
     render();
-    if (s_state.page == PDKPASS_PAGE_RESULTS) {
+    if (s_state.page == PDKPASS_PAGE_RESULTS ||
+        s_state.page == PDKPASS_PAGE_RACE_DETAIL) {
         pdkpass_results_request_race(s_state.selected_race);
     }
 }

@@ -6,6 +6,18 @@
 
 ## Unreleased
 
+- Made each race-detail session row state-aware: upcoming sessions retain their
+  Beijing start time, while completed, pending, cancelled, and absent sessions
+  show `RESULT`, `PENDING`, `CANCELLED`, or `NO SESSION` respectively.
+- Changed the results podium cards from fixed gold, white, and orange to each
+  classified driver's current team colour, with automatic text contrast.
+- Replaced the Mac simulator's fixed sample podium with real per-round,
+  per-session OpenF1 historical results, asynchronous loading states, and a
+  persistent local cache.
+- Made the calendar background and status accent follow the currently selected
+  circuit theme while browsing rounds with Up and Down.
+- Added a native macOS PDKPASS simulator that runs the production LVGL UI and
+  navigation with keyboard controls, network-state previews, and PNG capture.
 - Auto-fit home-screen country names from their measured pixel-font width so
   long names retain side margins instead of being clipped on the narrow screen.
 - Added 23 distinct circuit-based background themes shared by the home and
