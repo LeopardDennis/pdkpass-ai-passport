@@ -4,8 +4,8 @@
 
 # 贡献指南
 
-感谢你为 FoloToy AI Passport 贡献代码、文档、固件和反馈。本仓库是面向 AI agent 的
-开源可穿戴 AI 硬件的开发基线。它常被 fork 后二次开发，fork 用户约定见
+感谢你为 PDKPASS 贡献代码、文档、固件和反馈。本独立项目面向 FoloToy AI Passport
+硬件，并保留上游硬件基线。分支与上游维护约定见
 [`docs/fork-guide.zh_CN.md`](../docs/fork-guide.zh_CN.md)。
 
 ## 开始之前
@@ -15,7 +15,7 @@
   [AI 硬件开发指南](../docs/hardware-design/AI_HARDWARE_DEVELOPMENT_GUIDE.zh_CN.md) 的完整硬件上下文。
 - 参与社区时请遵守 [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)；普通使用问题见 [`SUPPORT.md`](SUPPORT.md)。
 - 不要提交凭证、令牌、授权文件或个人数据。
-- 仓库的 `main` 分支始终与上游基线保持同步；fork 用户在 `feature/*` 分支开发功能（见 `docs/fork-guide.md`）。
+- `main` 是 PDKPASS 的正式产品分支。聚焦改动在短期 `feature/*` 分支开发；引入上游变更前必须先审查（见 `docs/fork-guide.md`）。
 
 ## 开发与验证
 

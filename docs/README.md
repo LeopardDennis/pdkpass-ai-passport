@@ -113,10 +113,10 @@ LICENSE                  Repository license
 
 ## Documentation
 
-- [`docs/INDEX.md`](INDEX.md) — complete documentation index for contribution, engineering, fork, software, and hardware topics.
+- [`docs/INDEX.md`](INDEX.md) — complete documentation index for contribution, engineering, repository workflow, software, and hardware topics.
 - [`docs/development/agent-guide.md`](development/agent-guide.md) — AI-assisted development workflow, source priorities, BSP boundaries, runtime rules, and delivery format.
 - [`docs/hardware-design/AI_HARDWARE_DEVELOPMENT_GUIDE.md`](hardware-design/AI_HARDWARE_DEVELOPMENT_GUIDE.md) — pin map, acceptance matrix, and troubleshooting guide.
 - [`AGENTS.md`](../AGENTS.md) — mandatory entry point for AI-assisted work.
-- [`docs/fork-guide.md`](fork-guide.md) — fork branch and documentation workflow.
+- [`docs/fork-guide.md`](fork-guide.md) — standalone branch and upstream-maintenance workflow.
 
 > This README describes the product and repository. AI agents must begin with `AGENTS.md` and follow its task-specific routing.

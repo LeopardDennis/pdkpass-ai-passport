@@ -5,16 +5,17 @@
 # Development Experience Notes
 
 This page is the index for reusable development experience captured after each
-firmware release — focused on the fork's own `docs/` differences from upstream:
-the documents the developer created or changed on this fork. Individual entries
+firmware release — focused on this standalone project's `docs/` differences
+from upstream. Individual entries
 are stored as separate files under [`../experiences/`](../experiences/), grouped
 by the contributing developer's username, one file per entry, named after the
 entry's content summary in lowercase-kebab-case. The `experience-pr` skill writes
 new entries there and links them from the index below.
 
 Each entry is routed before submission: general, upstream-benefiting experience
-goes to the upstream `FoloToy/ai-passport` as a PR; fork-specific customization
-stays in the fork per [`docs/fork-guide.md`](../fork-guide.md).
+goes to the upstream `FoloToy/ai-passport` as a PR through a separate upstream
+fork; PDKPASS-specific customization stays here per
+[`docs/fork-guide.md`](../fork-guide.md).
 
 Before starting a new development, check here for previously recorded, reusable
 experience — alongside [`plays/`](../../plays/README.md) for reference

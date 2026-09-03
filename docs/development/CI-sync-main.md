@@ -2,12 +2,18 @@
   <a href="CI-sync-main.zh_CN.md">简体中文</a> · <strong>English</strong>
 </p>
 
-# Upstream Synchronization
+# Manual Upstream Updates
 
-`.github/workflows/sync-main.yml` synchronizes a fork's `main` branch with `FoloToy/ai-passport:main`. It runs daily at 00:00 UTC and by manual dispatch, and is skipped when the repository is not a fork.
+This repository is independent from the `FoloToy/ai-passport` fork network.
+`main` contains the released PDKPASS product, and no scheduled workflow merges
+upstream changes into it.
 
-The workflow checks out the target `main` without persisting credentials and uses the full-SHA-pinned upstream-sync Action. Its generated `GITHUB_TOKEN` has only `contents: write`; no manually configured token is required. If synchronization fails after an upstream workflow change, use GitHub's **Sync fork** once and inspect the Actions log.
+When a hardware-baseline fix is needed, fetch the upstream repository into a
+temporary review branch, inspect the complete diff, and import only the relevant
+commits or files. Run the complete validation gate before merging. Never merge
+upstream `main` automatically because doing so could replace PDKPASS application
+code, documentation, workflows, or compatibility settings.
 
-Keep fork-specific firmware and documentation on feature branches so `main` stays synchronized. If development must happen directly on `main`, disable this workflow first to avoid automatic merges or conflicts. Fork owners must explicitly enable Actions after forking.
-
-When upgrading an Action, verify the release and full commit SHA from the official repository and update the inline version comment.
+The old `.github/workflows/sync-main.yml` workflow was removed when this
+repository left the fork network. Keeping upstream as a read-only Git remote is
+optional and does not change the standalone repository relationship.

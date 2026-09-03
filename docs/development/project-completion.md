@@ -140,5 +140,5 @@ Every action follows the same non-negotiable rules:
 ## Related documents
 
 - Firmware publishing: [publish-to-community.md](publish-to-community.md)
-- Fork workflow and root README ownership: [fork-guide.md](../fork-guide.md)
+- Standalone repository workflow: [fork-guide.md](../fork-guide.md)
 - Commit and pull-request rules: [commit-and-pr.md](../contribution/commit-and-pr.md)

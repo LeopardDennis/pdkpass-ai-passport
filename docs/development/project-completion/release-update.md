@@ -18,7 +18,7 @@ Each step is an external, authorizing mutation. Confirm each one with the
 developer separately — do not treat a single up-front confirmation as covering
 commit, push, tag, and release.
 
-1. Commit the change and push it to the fork (`origin`) — confirm separately.
+1. Commit the change and push it to the standalone repository (`origin`) — confirm separately.
 2. Create and push a tag to trigger the release workflow — confirm separately.
 3. Let the tagged build produce the merged firmware `.bin`.
 4. Create or update the GitHub/GitLab release with the artifact — confirm
@@ -34,7 +34,7 @@ commit, push, tag, and release.
 
 - Follow the repository commit and pull-request rules
   ([commit-and-pr.md](../../contribution/commit-and-pr.md)).
-- Follow the fork workflow ([fork-guide.md](../../fork-guide.md)).
+- Follow the standalone repository workflow ([fork-guide.md](../../fork-guide.md)).
 - A tag-triggered build runs `build-firmware.yml`, which publishes the release
   only for a tag. See [CI-build-and-release.md](../CI-build-and-release.md).
 - For day-to-day compilation prefer `idf.py build` (fast, incremental); use
@@ -53,4 +53,4 @@ commit, push, tag, and release.
 
 - Tagged firmware builds and releases: [CI-build-and-release.md](../CI-build-and-release.md)
 - Commit and pull-request rules: [commit-and-pr.md](../../contribution/commit-and-pr.md)
-- Fork workflow: [fork-guide.md](../../fork-guide.md)
+- Standalone repository workflow: [fork-guide.md](../../fork-guide.md)

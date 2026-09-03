@@ -10,9 +10,9 @@
 
 ## 聚焦
 
-采集 fork 自身相对上游 `docs/` 的差异——开发者在这个 fork 上创建或修改过的文档。只提取持久、可复用的经验：
+采集本独立项目相对上游 `docs/` 的差异——为 PDKPASS 创建或修改过的文档。只提取持久、可复用的经验：
 
-- fork 记录了哪些上游没有的东西，以及为什么。
+- 本项目记录了哪些上游没有的内容，以及原因。
 - 硬件事实、接口、时序、资源预算或失败行为。
 - 构建、校验或发布流程上的改进。
 - 能适用于下一次发布的一般化经验。
@@ -22,18 +22,18 @@
 提交前先决定每条经验归属：
 
 - **通用经验回上游**——对任何用户都有益、属于上游基线的经验。作为 PR 提交到上游项目。
-- **fork 私有定制留在 fork**——产品定制内容、fork 私有业务规则或专有资产。不提交上游，记录在本地。
+- **PDKPASS 专属定制留在本仓库**——产品内容、私有业务规则或项目专属资产。不提交上游，记录在本地。
 
 ## 步骤
 
 1. 确认同意与可用的 GitHub 通道（GitHub MCP、GitHub skill 或 `gh`）。
-2. 对比 fork 与上游，找出 `docs/` 的差异。
+2. 对比本独立仓库与上游，找出 `docs/` 的差异。
 3. 提取并分流可复用经验。
 4. 在 `docs/experiences/<username>/` 下写入一个条目（一个 `.md` 文件，配 `.zh_CN.md`），按内容摘要命名（lowercase-kebab-case），并从经验索引链接它。
-5. 把变更交给开发者审查，然后在获得明确批准后再 commit、push 到 fork、并向上游开 PR。
+5. 把变更交给开发者审查；获得明确批准后，再复制到独立的上游 fork，执行 commit、push 并向上游开 PR。
 
 ## 相关文档
 
 - 经验索引：[experience-notes.md](../experience-notes.md)
 - Skill：[experience-pr](../../../skills/experience-pr/SKILL.md)
-- Fork 工作流：[fork-guide.md](../../fork-guide.md)
+- 独立仓库与上游工作流：[fork-guide.md](../../fork-guide.md)

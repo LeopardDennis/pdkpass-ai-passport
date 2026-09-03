@@ -12,7 +12,7 @@
 
 每一步都是外部、授权的变更。逐项与开发者分别确认——不要用一次笼统确认覆盖 commit、push、tag 与 release。
 
-1. 提交改动并推送到 fork（`origin`）——分别确认。
+1. 提交改动并推送到独立仓库（`origin`）——分别确认。
 2. 创建并推送 tag 以触发发布工作流——分别确认。
 3. 让 tag 触发的构建产出合并固件 `.bin`。
 4. 用产物创建或更新 GitHub/GitLab release——分别确认。工作流默认把发布标题设为版本号名；发布后把它完善为「项目功能名称 + 版本号」。
@@ -22,7 +22,7 @@
 ## 规则
 
 - 遵循仓库提交与 PR 规则（[commit-and-pr.md](../../contribution/commit-and-pr.md)）。
-- 遵循 fork 工作流（[fork-guide.md](../../fork-guide.md)）。
+- 遵循独立仓库工作流（[fork-guide.md](../../fork-guide.md)）。
 - tag 触发的构建运行 `build-firmware.yml`，它只在 tag 时发布。见 [CI-build-and-release.md](../CI-build-and-release.md)。
 - 日常编译优先用 `idf.py build`（快、增量）；只有需要合并校验的 `0x0` 全镜像（如发布或交付前）才用 `./tools/validate.sh --firmware`。
 - 工作流创建 release，默认标题为版本号名（来自 `softprops/action-gh-release` 的 `github.ref_name`）。发布后把标题完善为「项目功能名称 + 版本号」，例如 `Voice Keychain v1.2.0`。版本号为 tag，功能名称为共享[发布属性](../project-completion.md#共享发布属性)中的应用发布名。
@@ -32,4 +32,4 @@
 
 - 打 tag 构建与发版：[CI-build-and-release.md](../CI-build-and-release.md)
 - 提交与 PR 规则：[commit-and-pr.md](../../contribution/commit-and-pr.md)
-- Fork 工作流：[fork-guide.md](../../fork-guide.md)
+- 独立仓库工作流：[fork-guide.md](../../fork-guide.md)

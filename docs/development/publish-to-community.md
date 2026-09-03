@@ -13,7 +13,7 @@ Use this when the project is being **released** — that is, when the code is fi
 When the developer says "publish" or "release", the first thing to decide is **where** to publish. Do not assume a route.
 
 - **To the community** — release the firmware to the [AI Passport Community market](https://ai-passport.folotoy.cn). Use the publisher workflow below. See also the project completion flow (`docs/development/project-completion.md`) once it is published.
-- **To Git** — publish the finished code to a version-controlled repository. The flow is: commit the finished code, then open a release for it. The release artifact may be produced by the CI/CD pipeline (**recommended**, tag-triggered via `.github/workflows/build-firmware.yml`), or it may be a local `.bin` the developer already built. Follow the repository commit and PR rules (`docs/contribution/commit-and-pr.md`) and the fork workflow (`docs/fork-guide.md`); see [`CI-build-and-release.md`](CI-build-and-release.md) for the automated build and release artifacts.
+- **To Git** — publish the finished code to a version-controlled repository. The flow is: commit the finished code, then open a release for it. The release artifact may be produced by the CI/CD pipeline (**recommended**, tag-triggered via `.github/workflows/build-firmware.yml`), or it may be a local `.bin` the developer already built. Follow the repository commit and PR rules (`docs/contribution/commit-and-pr.md`) and the standalone repository workflow (`docs/fork-guide.md`); see [`CI-build-and-release.md`](CI-build-and-release.md) for the automated build and release artifacts.
 - **Neither yet** — the code is not finished and usable; keep developing, do not publish.
 
 The workflow is driven by the official publisher skill. Running the prompt once makes the assistant install the skill from the official bundle; nothing is committed into the repository.
@@ -32,7 +32,7 @@ The skill's `SKILL.md` defines the exact workflow: inspect the project, prepare 
   [mini-program BLE compatibility contract](ble-recovery-compatibility.md).
   Never substitute the app-only `.bin` produced by `idf.py build`.
 - **Cover**: a representative JPEG / PNG / WebP image (<= 10 MiB).
-- **Source**: the public HTTPS Git page for the firmware repository — GitHub, Gitee, GitLab, Codeberg, or another publicly reachable HTTPS Git repository page. A fork owner publishes from their fork's source page, resolved from `git remote -v`.
+- **Source**: the public HTTPS Git page for the firmware repository — GitHub, Gitee, GitLab, Codeberg, or another publicly reachable HTTPS Git repository page. For PDKPASS, use `https://github.com/LeopardDennis/ai-passport-pdkpass`, resolved and verified from `git remote -v`.
 
 ## Safety and boundaries
 

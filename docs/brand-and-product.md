@@ -53,6 +53,6 @@ You can use these references as input when generating render images with an AI i
 
 ## Specifications, source, and license
 
-See [specifications.md](hardware-design/specifications.md) for dimensions, weight, battery, charging, NFC, input, and wireless specifications. The source repository is licensed under the MIT License, Copyright (c) 2026 FoloToy. See [fork-guide.md](fork-guide.md) for downstream development conventions.
+See [specifications.md](hardware-design/specifications.md) for dimensions, weight, battery, charging, NFC, input, and wireless specifications. The upstream source is licensed under the MIT License, Copyright (c) 2026 FoloToy. See [fork-guide.md](fork-guide.md) for this standalone project's downstream maintenance conventions.
 
 This page owns public names, positioning, and official entry points. It does not override pin, bus, resource, or board behavior documented by the hardware sources.

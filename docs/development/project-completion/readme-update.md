@@ -4,18 +4,16 @@
 
 # Action E: Update the Root README
 
-This action updates the fork's root `README.md` on the relevant branches to
-reflect the newly released or archived application. It is one of the six optional
-closing actions listed in the [project completion](../project-completion.md).
+This action updates the standalone repository's root `README.md` to reflect the
+newly released or archived application. It is one of the six optional closing
+actions listed in the [project completion](../project-completion.md).
 
-The root README path is intentionally reserved for the fork owner. Upstream's
-project overview lives at `docs/README.md`; a fork may add its own root README to
-explain its product without replacing upstream documentation.
+The root README pair describes PDKPASS. The inherited AI Passport hardware
+overview remains at `docs/README.md` and is maintained separately.
 
-The fork keeps `main` synced with upstream and puts product work on `feature/*`
-branches, so root READMEs exist on multiple branches. Handle each branch's root
-README independently — the `main` README and a `feature/*` branch README are
-separate decisions.
+`main` is the PDKPASS product branch. A short-lived feature branch may update
+the README as part of its focused change, but the final product documentation
+must be present on `main`.
 
 ## When this is recommended
 
@@ -23,39 +21,31 @@ The README update is an **optional** action like the other five, and it is also
 the default companion to archiving: when the application is archived to `plays/`
 (action D), the README sync runs as part of that action. Archiving itself is
 optional — the developer may decline — but whenever a project is completed, the
-README should be refreshed on the hosting branch and on fork `main` so the
-application is registered where it is developed.
+README should be refreshed on `main` so the application remains accurately
+described on the repository landing page.
 
 ## Rules
 
-- Only touch fork-owned root READMEs (`README.md` / `README.zh_CN.md`); do not
+- Update the PDKPASS root READMEs (`README.md` / `README.zh_CN.md`); do not
   modify the upstream project overview at `docs/README.md`.
-- Check the root README on each relevant branch (`main` and the current
-  `feature/*` branch), not just one branch.
-- The fork `main` root README is the **catalog of the fork's projects**: it
-  **fully includes** the content of each project's own README — a complete
-  description of what the application does and how to use it (its interactions,
-  modes, keys, persistence, and notes) — not a one-line intro followed by a
-  branch link. Pull the content from the hosting branch's README.
-- The fork root README and the hosting branch's root README are fork-owned
-  content. Commit them directly (merge) rather than opening a PR; open a PR only
-  when the change is meant to go upstream.
+- The `main` root README is the authoritative product description: include what
+  the application does and how to use it, including interactions, modes, keys,
+  persistence, and important notes.
+- Commit the README with the product change through the normal branch and review
+  workflow. Open an upstream PR only for a separate, reusable upstream change.
 - Follow the repository language rule: English at the default `.md` path and
   Simplified Chinese at the paired `.zh_CN.md`, aligned in the same change.
 
 ## Steps
 
 1. Confirm consent and a GitHub channel (GitHub MCP, a GitHub skill, or `gh`).
-2. On the hosting `feature/*` branch: create the bilingual README pair if it is
+2. On the working branch: create the bilingual README pair if it is
    missing, or update it to add or refresh the application's own description.
-3. On fork `main`: update the root README pair so the released application is
-   discoverable from the repository landing page, fully including the hosting
-   branch's README content.
-4. Commit the README updates directly to the branch / fork `main` (fork-owned
-   content); do not open a PR for this unless it is an upstream change.
+3. Merge the reviewed README pair with the product change into `main`.
+4. Confirm the repository landing page displays the current PDKPASS description.
 
 ## Related documents
 
-- Fork workflow and root README ownership: [fork-guide.md](../../fork-guide.md)
+- Standalone repository workflow: [fork-guide.md](../../fork-guide.md)
 - Application archive skill: [plays-archive](../../../skills/plays-archive/SKILL.md)
 - Documentation conventions: [doc-conventions.md](../../contribution/doc-conventions.md)

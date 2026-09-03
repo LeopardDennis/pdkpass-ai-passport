@@ -22,12 +22,12 @@ Use this page to discover repository documentation. `authoritative` documents de
 | [development/coding-conventions.md](development/coding-conventions.md) | C and firmware conventions | authoritative |
 | [development/CI-validation.md](development/CI-validation.md) | Pull-request and main-branch validation | authoritative |
 | [development/CI-build-and-release.md](development/CI-build-and-release.md) | Tagged firmware builds and releases | authoritative |
-| [development/CI-sync-main.md](development/CI-sync-main.md) | Fork upstream synchronization | authoritative |
+| [development/CI-sync-main.md](development/CI-sync-main.md) | Reviewed manual upstream updates | authoritative |
 | [development/publish-to-community.md](development/publish-to-community.md) | Publish firmware to the AI Passport community market | authoritative |
 | [development/project-completion.md](development/project-completion.md) | Project completion flow (optional closing actions) | authoritative |
 | [development/file-issues.md](development/file-issues.md) | Filing a suggestion as an upstream GitHub issue | authoritative |
 | [development/experience-notes.md](development/experience-notes.md) | Index of development experience entries under `docs/experiences/` | reference |
-| [fork-guide.md](fork-guide.md) | Fork branch and documentation workflow | authoritative |
+| [fork-guide.md](fork-guide.md) | Standalone branch and upstream-maintenance workflow | authoritative |
 | [hardware-design/README.md](hardware-design/README.md) | Hardware-document index | reference |
 | [hardware-design/AI_HARDWARE_DEVELOPMENT_GUIDE.md](hardware-design/AI_HARDWARE_DEVELOPMENT_GUIDE.md) | Board facts, constraints, validation, and troubleshooting | authoritative |
 | [hardware-design/specifications.md](hardware-design/specifications.md) | User-facing product specifications | authoritative |

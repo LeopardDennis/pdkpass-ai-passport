@@ -86,7 +86,7 @@ FoloToy 提供两处浏览器刷机入口，均可安全写入本地固件，固
 
 - 产品开源仓库：`github.com/FoloToy/ai-passport`。
 - 协议：**MIT License**（Copyright (c) 2026 FoloToy）。
-- 仓库常被 fork 后二次开发；fork 约定见仓库 `docs/fork-guide.md`。
+- PDKPASS 作为独立下游项目维护；分支与上游更新约定见仓库 `docs/fork-guide.zh_CN.md`。
 
 ## 6. 命名与多语言
 

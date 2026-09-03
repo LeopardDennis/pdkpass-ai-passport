@@ -4,11 +4,10 @@
 
 # Contributing
 
-Thank you for contributing to FoloToy AI Passport — code, documentation,
-firmware, and feedback. This repository is the development baseline for
-open-source wearable AI hardware designed for AI agents. It is often forked for
-second development; the fork conventions are in
-[`docs/fork-guide.md`](../docs/fork-guide.md).
+Thank you for contributing code, documentation, firmware, and feedback to
+PDKPASS. This standalone project is built for FoloToy AI Passport hardware and
+retains the upstream hardware baseline. Its branch and upstream-maintenance
+conventions are documented in [`docs/fork-guide.md`](../docs/fork-guide.md).
 
 ## Before you start
 
@@ -20,8 +19,9 @@ second development; the fork conventions are in
 - Follow [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) when participating in the
   community. For ordinary usage questions, see [`SUPPORT.md`](SUPPORT.md).
 - Do not commit credentials, tokens, authorization files, or personal data.
-- The repository's `main` branch stays in sync with the upstream baseline; fork
-  users develop feature work in `feature/*` branches (see `docs/fork-guide.md`).
+- `main` is the released PDKPASS product branch. Develop focused changes in
+  short-lived `feature/*` branches and review upstream changes before importing
+  them (see `docs/fork-guide.md`).
 
 ## Development and verification
 

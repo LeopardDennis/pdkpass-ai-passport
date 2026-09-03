@@ -22,11 +22,12 @@ Do not create, write, or commit anything until every gate below is satisfied.
 1. **Confirm consent up front.** This work touches project-private content.
    Ask the developer to confirm they agree to archive the application. If they
    decline, stop immediately.
-2. **Never modify or commit on the current branch.** Base the archive on the
-   latest upstream `main` for a clean baseline, create a dedicated branch or
-   worktree, push it to the developer's fork (`origin`), and open the PR from
-   that fork branch against the upstream `FoloToy/ai-passport`. Leave the current
-   checkout untouched.
+2. **Never modify or commit on the current branch.** This repository is
+   standalone, so `origin` is not an upstream fork and must not host the archive
+   PR branch. Base the archive on the latest upstream `main` in a dedicated
+   branch or worktree, push it to a separate fork of `FoloToy/ai-passport`, and
+   open the PR from that fork. Creating or selecting that fork and pushing to it
+   require explicit authorization. Leave the current checkout untouched.
 3. **No credentials or private data.** Never include credentials, device QR
    secrets, private device links, personal data, or unsanitized logs. Run
    `python3 tools/check_repo.py` before committing anything.
@@ -41,29 +42,15 @@ lowercase-kebab-case username and application name as the two-level path:
 
 ## Check the project README
 
-Before generating the summary, check the **root README** of both the `main`
-branch and the current branch:
+Before generating the summary, check the standalone project's **root README**:
 
-- `git ls-tree --name-only main README.md` — is there a README on `main`?
-- `test -f README.md` — is there a README on the current branch?
+- `git show main:README.md` — read the English product description.
+- `git show main:README.zh_CN.md` — read the Simplified Chinese peer.
 
-Follow the repository rule that the root README path is reserved for the fork
-owner (see `docs/fork-guide.md`); do not create a root README unless the fork
-actually owns one.
-
-1. **If a README exists** (on `main` or the current branch): when archiving, **merge
-   the README content into the functional summary** so the summary reflects the
-   human-facing description, not just the code. A README that already exists is
-   kept for the branch that owns it.
-2. **If no README exists**: summarize directly from the implementation, with no
-   README merge.
-3. **After archiving is complete**, handle each branch's root README independently
-   (not as a single combined decision):
-   - For a branch with **no** root README, **create** (or update) the README on
-     that branch so the archived application is discoverable from the fork's own
-     README.
-   - For a branch that already **has** a root README, **prompt the developer to
-     update it** to reflect the new archived application.
+Merge the PDKPASS README content into the functional summary so the archive
+reflects the human-facing description, not just the code. Do not copy the
+PDKPASS root README into the upstream archive branch or modify the current
+repository as part of this workflow.
 
 ## Generate the functional summary
 
@@ -84,8 +71,8 @@ publishing artifact). Record:
 - The cover image file name and format, recorded as publish metadata only — the
   cover image itself is **not** committed (the archive is text-only).
 
-If the root README exists, merge its content into the summary rather than
-ignoring the human-facing description.
+Merge the root README content into the summary rather than ignoring the
+human-facing description.
 
 Write the default `.md` in English and the `.zh_CN.md` in Simplified Chinese,
 aligned in the same change.
@@ -106,17 +93,16 @@ convention in [`docs/assets/brand/README.md`](../../docs/assets/brand/README.md)
 
 ## Commit
 
-Commit the summary on the dedicated branch (English imperative
+Commit the summary on the dedicated upstream-fork branch (English imperative
 Conventional Commit title, for example
-`docs(plays): add <app-name> application archive`). If a root README was created
-or updated, include it in the same change. Do **not** store the merged
+`docs(plays): add <app-name> application archive`). Do **not** store the merged
 firmware `.bin` here; it is a build/publish artifact. Report Build, Host tests,
 Device tests, and Unverified separately.
 
-After review, open the PR from the fork branch against the upstream
+After review, open the PR from the separate upstream-fork branch against
 `FoloToy/ai-passport` through the first available GitHub channel — GitHub MCP, a
 GitHub skill, or
-`gh pr create --repo FoloToy/ai-passport --base main --head <fork>:<branch>` —
+`gh pr create --repo FoloToy/ai-passport --base main --head <upstream-fork>:<branch>` —
 and read it back to confirm. Opening a PR requires separate confirmation.
 
 ## What this skill does not do

@@ -19,8 +19,9 @@ description: 固件发布之后，把已发布的应用归档到上游 FoloToy a
 
 1. **先确认同意。** 本工作涉及项目私有内容。先向开发者确认是否同意归档该应用；开发者拒绝则
    立即停止。
-2. **绝不在当前分支上修改或提交。** 以最新上游 `main` 为干净基线，另起一个独立分支或 worktree
-   承载，推到开发者的 fork（`origin`），并从该 fork 分支向上游 `FoloToy/ai-passport` 开 PR。
+2. **绝不在当前分支上修改或提交。** 本仓库是独立仓库，`origin` 不是上游 fork，不得承载归档
+   PR 分支。以最新上游 `main` 为干净基线，在独立分支或 worktree 中工作，推到另建的
+   `FoloToy/ai-passport` fork，再从该 fork 开 PR。创建或选择该 fork 以及推送都需要明确授权。
    保持当前 checkout 不被改动。
 3. **不写入凭证或私有数据。** 永远不包含凭证、设备 QR 密钥、私密设备链接、个人数据或未脱敏
    日志。提交任何内容前先运行 `python3 tools/check_repo.py`。
@@ -33,21 +34,13 @@ description: 固件发布之后，把已发布的应用归档到上游 FoloToy a
 
 ## 检查项目 README
 
-生成功能说明前，先检查 `main` 分支和当前分支**根目录**的 README：
+生成功能说明前，先检查独立项目 `main` 分支**根目录**的 README：
 
-- `git ls-tree --name-only main README.md` —— `main` 分支有没有 README？
-- `test -f README.md` —— 当前分支有没有 README？
+- `git show main:README.md` —— 读取英文产品说明。
+- `git show main:README.zh_CN.md` —— 读取简体中文配对说明。
 
-遵循仓库规则：根 README 路径保留给 fork owner（见 `docs/fork-guide.md`）；除非 fork 确实拥有
-根 README，否则不要创建。
-
-1. **若有 README**（`main` 或当前分支有）：归档时把 **README 内容合并进功能说明**，让说明既
-   反映人类可读的描述，也反映代码。已存在的 README 归它所属的分支保留。
-2. **若没有 README**：直接从实现总结，不合并 README。
-3. **归档完成后**，对每个分支的根 README **各自处理**（不是一个合并判断）：
-   - 对**没有**根 README 的分支：在**该分支**创建（或更新）README，让归档的应用能从 fork 自己的
-     README 检索到。
-   - 对已经**有**根 README 的分支：**提示开发者更新它**，以反映新归档的应用。
+把 PDKPASS README 内容合并进功能说明，让归档既反映人类可读的描述，也反映代码。不要把
+PDKPASS 根 README 复制到上游归档分支，也不要在本流程中修改当前独立仓库。
 
 ## 生成功能说明
 
@@ -62,7 +55,7 @@ description: 固件发布之后，把已发布的应用归档到上游 FoloToy a
 - 应用来源，用**开发者发布时提交的源码地址**（HTTPS Git 源码页）精确定位。
 - 封面图文件名与格式，仅作为发布元数据记录——封面图本身**不**提交（档案为纯文本）。
 
-若根 README 存在，把它合并进说明，而不是忽略人类可读的描述。
+把根 README 内容合并进说明，而不是忽略人类可读的描述。
 
 默认 `.md` 用英文、配对 `.zh_CN.md` 用简体中文，并在同一次变更中对齐。
 
@@ -77,13 +70,14 @@ description: 固件发布之后，把已发布的应用归档到上游 FoloToy a
 
 ## 提交
 
-在独立分支上提交总结（英文祈使句 Conventional Commit 标题，例如
-`docs(plays): add <app-name> application archive`）。若创建或更新了根 README，一并纳入同一次变更。
+在独立的上游 fork 分支上提交总结（英文祈使句 Conventional Commit 标题，例如
+`docs(plays): add <app-name> application archive`）。
 **不要**在这里存合并固件 `.bin`；它是构建/发布产物。按 Build、Host tests、Device tests、
 Unverified 分别上报。
 
 审查后，通过第一个可用的 GitHub 通道（GitHub MCP、GitHub skill、或
-`gh pr create --repo FoloToy/ai-passport --base main --head <fork>:<branch>`）从 fork 分支
+`gh pr create --repo FoloToy/ai-passport --base main --head <upstream-fork>:<branch>`）从独立的
+上游 fork 分支
 向上游 `FoloToy/ai-passport` 开 PR，并回读确认。开 PR 需要单独的再次确认。
 
 ## 本 skill 不做的事

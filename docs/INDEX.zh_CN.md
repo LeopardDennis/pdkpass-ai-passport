@@ -4,7 +4,7 @@
 
 # Docs 规范索引
 
-本索引用于发现 `docs/` 下的全部文档：协作规范、工程规范、fork 工作流、软硬件设计文档。
+本索引用于发现 `docs/` 下的全部文档：协作规范、工程规范、独立仓库工作流、软硬件设计文档。
 
 **状态含义**：`authoritative` = 权威、对开发与协作有约束力；`参考` = 设计 / 记录 / 骨架，供背景参考。
 
@@ -23,12 +23,12 @@
 | [development/agent-guide.zh_CN.md](./development/agent-guide.zh_CN.md) | 工程规范 | authoritative | AI 开发工作流（上下文建立、需求拆解、BSP 边界、验收交付格式） |
 | [development/CI-build-and-release.zh_CN.md](./development/CI-build-and-release.zh_CN.md) | CI 文档 | authoritative | 自动构建与发布说明（tag 触发自动编译固件并发布 Release） |
 | [development/CI-validation.zh_CN.md](./development/CI-validation.zh_CN.md) | CI 文档 | authoritative | PR/main 自动仓库检查、host tests 与固件验证 |
-| [development/CI-sync-main.zh_CN.md](./development/CI-sync-main.zh_CN.md) | CI 文档 | authoritative | 上游同步说明（定期同步上游 main 到 fork） |
+| [development/CI-sync-main.zh_CN.md](./development/CI-sync-main.zh_CN.md) | CI 文档 | authoritative | 审查并手动引入上游更新的说明 |
 | [development/publish-to-community.zh_CN.md](./development/publish-to-community.zh_CN.md) | 工程规范 | authoritative | 发布到 AI Passport 社区市场 |
 | [development/project-completion.zh_CN.md](./development/project-completion.zh_CN.md) | 工程规范 | authoritative | 项目开发完成流程（可选收尾动作） |
 | [development/file-issues.zh_CN.md](./development/file-issues.zh_CN.md) | 工程规范 | authoritative | 把建议提交成上游 GitHub issue |
 | [development/experience-notes.zh_CN.md](./development/experience-notes.zh_CN.md) | 沉淀记录 | 参考 | `docs/experiences/` 下开发经验条目的索引 |
-| [fork-guide.zh_CN.md](./fork-guide.zh_CN.md) | fork 工作流 | authoritative | 目录结构、main 保持干净、fork 约定、docs/assets 使用 |
+| [fork-guide.zh_CN.md](./fork-guide.zh_CN.md) | 独立仓库工作流 | authoritative | main 分支职责、手动引入上游更新与贡献边界 |
 | [software-design/README.zh_CN.md](./software-design/README.zh_CN.md) | 软件设计索引 | 参考 | 软件设计文档子目录骨架 |
 | [hardware-design/README.zh_CN.md](./hardware-design/README.zh_CN.md) | 硬件设计索引 | 参考 | 硬件设计文档子目录骨架 |
 | [hardware-design/AI_HARDWARE_DEVELOPMENT_GUIDE.zh_CN.md](./hardware-design/AI_HARDWARE_DEVELOPMENT_GUIDE.zh_CN.md) | 硬件指南 | authoritative | 完整硬件开发指南与排障参考（上游） |

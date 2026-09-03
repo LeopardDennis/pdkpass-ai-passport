@@ -4,13 +4,14 @@
 
 # 开发经验沉淀
 
-本页是每次固件发布后可复用开发经验的索引——聚焦 fork 相对上游 `docs/` 的差异：开发者在
-fork 上自行创建或变更的 `docs/` 文档。每条经验一个 `.md` 及其配对 `.zh_CN.md`，保存在
+本页是每次固件发布后可复用开发经验的索引——聚焦本独立项目相对上游 `docs/` 的差异。
+每条经验一个 `.md` 及其配对 `.zh_CN.md`，保存在
 [`../experiences/`](../experiences/) 目录下，按贡献者的 GitHub 用户名分组，按
 条目内容概要命名（小写连字符）。`experience-pr` skill 生成新条目，并从下面索引链接它。
 
-每条经验在提交前分流：通用、上游也受益的经验作为 PR 提交到上游 `FoloToy/ai-passport`；
-纯 fork 定制按 [`docs/fork-guide.md`](../fork-guide.md) 留在 fork。
+每条经验在提交前分流：通用、上游也受益的经验通过独立的上游 fork 作为 PR 提交到
+`FoloToy/ai-passport`；PDKPASS 专属定制按 [`docs/fork-guide.md`](../fork-guide.md)
+留在本仓库。
 
 开始新开发前，可先查这里有没有之前沉淀、可复用的经验——与 [`plays/`](../../plays/README.md) 的
 参考应用一起看。

@@ -102,5 +102,5 @@ flowchart TD
 ## 相关文档
 
 - 固件发布：[publish-to-community.md](publish-to-community.md)
-- Fork 工作流与根 README 归属：[fork-guide.md](../fork-guide.md)
+- 独立仓库工作流：[fork-guide.md](../fork-guide.md)
 - 提交与 PR 规则：[commit-and-pr.md](../contribution/commit-and-pr.md)
