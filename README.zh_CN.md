@@ -4,26 +4,41 @@
 
 # PDKPASS
 
-PDKPASS 是为 FoloToy AI Passport 打造、支持赛季在线更新与联网校时的离线优先
-F1 周末伴侣，
-将 240 × 320 随身屏幕变成一张可以随时查看的赛历、车手积分榜、比赛详情与分节
-前三名档案。
+<p align="center">
+  <strong>装在 FoloToy AI Passport 里的 F1 周末通行证。</strong><br>
+  赛历 · 车手积分 · 赛道详情 · 各分节前三名
+</p>
 
-## 首个版本
+> **项目状态：**固件构建和主机测试已经通过，原生模拟器可运行正式界面；首次实机
+> 验证仍需等待设备到货后完成。
 
-- 将确认后的 PDKPASS 赛车通行证设计直接实现到固件：方形像素字体、带错位阴影的纸质
-  票据、蓝色比赛面板、黄色分节强调、紧凑赛道轮廓，并将同一套视觉系统延伸到赛历、
-  积分、成绩、配网与赛季结束页面。
-- 根据北京时间自动进入当前或下一场比赛页面。
-- 下载并缓存当前赛季赛历，每站使用独立强调色；首次使用且没有 Wi-Fi 时，仍可使用
-  内置的 2026 赛季回退数据。
-- 根据最近一场已结束的正赛更新车手积分榜，并保留离线查看能力。
-- 比赛详情包含中国标准时间、已知的赛道长度与圈数，以及内置 2026 各站独立的紧凑
-  赛道轮廓。
-- 免费历史成绩延迟结束后，下载并缓存练习、冲刺排位、冲刺赛、排位赛和正赛前三名。
-- 断网时仍可浏览赛历与积分榜，闲置后自动降低并关闭背光。
-- 保留 AI Passport 小程序安装、受保护的 `cardid`、永久 Recovery，以及长按上键
-  5 秒进入 Recovery 的能力。
+<table>
+  <tr>
+    <td><img src="docs/assets/pdkpass/home-r01.png" alt="PDKPASS 澳大利亚站首页"></td>
+    <td><img src="docs/assets/pdkpass/home-r13.png" alt="PDKPASS 意大利站首页"></td>
+    <td><img src="docs/assets/pdkpass/home-r23.png" alt="PDKPASS 阿布扎比站首页"></td>
+  </tr>
+  <tr>
+    <td align="center">澳大利亚</td>
+    <td align="center">意大利</td>
+    <td align="center">阿布扎比</td>
+  </tr>
+</table>
+
+<p align="center"><sub>画面由原生模拟器直接运行正式界面代码生成，不是设计稿。</sub></p>
+
+## PDKPASS 能做什么
+
+PDKPASS 将 AI Passport 变成离线优先的 F1 随身伴侣：打开就能看到当前或下一站，
+还可以浏览全年赛历、车手积分、赛道详情，以及各个比赛分节的前三名。
+
+- 按北京时间自动选择当前或下一站，无需手动切换日期。
+- 每站使用独立配色，同时让首页、赛历、详情、积分、成绩、配网和赛季结束页面保持
+  同一套赛车通行证视觉语言。
+- 内置完整 2026 赛历和每站不同的赛道轮廓，首次离线也能使用。
+- 联网后下载当前赛季与积分榜，并将最后一次有效数据留在设备中供离线查看。
+- 成绩可覆盖 FP1、FP2、FP3、冲刺排位、冲刺赛、排位赛与正赛，并缓存各分节前三名。
+- 闲置后自动降低亮度并关闭背光。
 
 ## 按键
 
@@ -35,7 +50,7 @@ F1 周末伴侣，
 | 比赛详情 | 上一场 / 下一场 | 分节成绩 | 返回 |
 | 分节成绩 | 上一个 / 下一个分节 | 比赛详情 | 比赛详情 |
 
-## 首次配网
+## 不需要安装手机 App
 
 不需要安装手机 App。设备没有保存可用网络时，首页会显示临时 Wi-Fi 名称、密码和
 `192.168.4.1`：
@@ -92,10 +107,21 @@ OpenF1 将详细赛道信息标注为由
 [OpenStreetMap 贡献者](https://www.openstreetmap.org/copyright)。当前用途是独立、非商业
 车迷项目；如需商业分发，应先重新核对相关来源条款。
 
-PDKPASS 是独立车迷项目，与 Formula 1、FIA 或 FoloToy 没有隶属或背书关系。
-Formula 1 及相关标识归各自权利人所有。
+## 在 macOS 上体验正式界面
 
-## 构建
+仓库内置原生模拟器，直接运行与固件相同的 PDKPASS 页面、导航、分站主题、赛道轮廓、
+积分榜和成绩布局。
+
+```bash
+git clone https://github.com/LeopardDennis/ai-passport-pdkpass.git
+cd ai-passport-pdkpass
+./tools/pdkpass-simulator/run.sh
+```
+
+使用 `--race 1` 至 `--race 23` 可以直接打开指定分站。键盘操作、无窗口截图和历史成绩
+同步方法见[模拟器说明](tools/pdkpass-simulator/README.zh_CN.md)。
+
+## 构建固件
 
 使用 ESP-IDF 5.5.3，并执行：
 
@@ -105,3 +131,19 @@ Formula 1 及相关标识归各自权利人所有。
 ```
 
 仅分发通过验证的 `build/FoloToy-AI-Passport-full.bin`。
+完整构建流程、刷机注意事项和 Recovery 保护要求见
+[构建与测试说明](docs/development/build-and-test.zh_CN.md)。
+
+## 文档
+
+- [文档索引](docs/INDEX.zh_CN.md)
+- [原生模拟器](tools/pdkpass-simulator/README.zh_CN.md)
+- [构建与测试](docs/development/build-and-test.zh_CN.md)
+- [BLE 与 Recovery 兼容性](docs/development/ble-recovery-compatibility.zh_CN.md)
+
+## 许可与声明
+
+源代码使用 [MIT License](LICENSE)。
+
+PDKPASS 是独立车迷项目，与 Formula 1、FIA 或 FoloToy 没有隶属或背书关系。
+Formula 1 及相关标识归各自权利人所有。

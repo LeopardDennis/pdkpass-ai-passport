@@ -4,30 +4,48 @@
 
 # PDKPASS
 
-PDKPASS is an offline-first Formula 1 weekend companion for FoloToy AI Passport
-with automatic online season updates and network time synchronization.
-It turns the 240 × 320 wearable display into a glanceable race calendar, driver
-standings board, race-detail pass, and session-podium archive.
+<p align="center">
+  <strong>Your Formula 1 weekend pass for FoloToy AI Passport.</strong><br>
+  Race calendar · driver standings · circuit details · session podiums
+</p>
 
-## First release
+> **Project status:** the firmware build and host tests pass, and the native
+> simulator runs the production interface. First on-device validation is still
+> pending.
 
-- Recreates the approved PDKPASS race-pass artwork directly in the firmware:
-  square pixel type, paper tickets with offset shadows, blue race panels,
-  yellow session highlights, compact circuit outlines, and the same visual
-  system across calendar, standings, results, setup, and season-end screens.
-- Uses Beijing time to open the current or next-race dashboard automatically.
-- Downloads and caches the current season calendar with a race-specific accent
-  colour, while retaining a bundled 2026 fallback for first use without Wi-Fi.
-- Updates the driver standings from the latest completed race and keeps them
-  available offline.
-- Opens race details with CST session times and, when known, circuit length and
-  lap count, plus a distinct compact outline for each bundled 2026 circuit.
-- Downloads and caches the top three from practice, sprint qualifying, sprint,
-  qualifying, and race sessions after the free historical-results delay.
-- Keeps the calendar and standings available offline, and dims/turns off the
-  backlight after inactivity.
-- Preserves AI Passport mini-program installation, protected `cardid`, permanent
-  Recovery, and the five-second UP-key Recovery gesture.
+<table>
+  <tr>
+    <td><img src="docs/assets/pdkpass/home-r01.png" alt="PDKPASS Australia home screen"></td>
+    <td><img src="docs/assets/pdkpass/home-r13.png" alt="PDKPASS Italy home screen"></td>
+    <td><img src="docs/assets/pdkpass/home-r23.png" alt="PDKPASS Abu Dhabi home screen"></td>
+  </tr>
+  <tr>
+    <td align="center">Australia</td>
+    <td align="center">Italy</td>
+    <td align="center">Abu Dhabi</td>
+  </tr>
+</table>
+
+<p align="center"><sub>Captured directly from the production UI in the native simulator—not design mockups.</sub></p>
+
+## Why PDKPASS
+
+PDKPASS turns AI Passport into a compact, offline-first F1 companion. Open it
+to see the current or next Grand Prix, browse the season, check the driver
+standings, inspect circuit details, and revisit the top three from every
+supported weekend session.
+
+- Selects the current or next round automatically using Beijing time.
+- Gives every round its own colour while keeping the race-pass visual language
+  consistent across the calendar, details, standings, results, setup, and
+  season-end screens.
+- Bundles the complete 2026 calendar and distinct circuit outlines for offline
+  first use.
+- Downloads the current season and standings when online, then keeps the latest
+  valid copy available offline.
+- Caches podiums for FP1, FP2, FP3, sprint qualifying, sprint, qualifying, and
+  the Grand Prix as results become available.
+- Dims and turns off the backlight after inactivity.
 
 ## Controls
 
@@ -39,7 +57,7 @@ standings board, race-detail pass, and session-podium archive.
 | Race details | Previous / next race | Session results | Back |
 | Session results | Previous / next session | Race details | Race details |
 
-## First-time Wi-Fi setup
+## No app required
 
 No phone app is required. When no working network has been saved, PDKPASS shows
 a temporary Wi-Fi name, password, and `192.168.4.1` on its home screen:
@@ -109,11 +127,23 @@ OpenF1 identifies the detailed circuit information as data provided by
 an independent, non-commercial fan use. Review the relevant source terms before
 any commercial redistribution.
 
-PDKPASS is an independent fan project and is not affiliated with or endorsed by
-Formula 1, the FIA, or FoloToy. Formula 1 and related marks belong to their
-respective owners.
+## Try the real interface on macOS
 
-## Build
+The repository includes a native simulator that runs the same PDKPASS screens,
+navigation, themes, circuit outlines, standings, and result layouts as the
+firmware.
+
+```bash
+git clone https://github.com/LeopardDennis/ai-passport-pdkpass.git
+cd ai-passport-pdkpass
+./tools/pdkpass-simulator/run.sh
+```
+
+Use `--race 1` through `--race 23` to open another round. See the
+[simulator guide](tools/pdkpass-simulator/README.md) for keyboard controls,
+headless screenshots, and historical-result sync.
+
+## Build the firmware
 
 Use ESP-IDF 5.5.3 and run:
 
@@ -123,3 +153,20 @@ Use ESP-IDF 5.5.3 and run:
 ```
 
 Only distribute the validated `build/FoloToy-AI-Passport-full.bin` artifact.
+The complete build, flashing cautions, and protected Recovery requirements are
+documented in the [build and test guide](docs/development/build-and-test.md).
+
+## Documentation
+
+- [Documentation index](docs/INDEX.md)
+- [Native simulator](tools/pdkpass-simulator/README.md)
+- [Build and test](docs/development/build-and-test.md)
+- [BLE and Recovery compatibility](docs/development/ble-recovery-compatibility.md)
+
+## Licence and disclaimer
+
+The source code is available under the [MIT Licence](LICENSE).
+
+PDKPASS is an independent fan project and is not affiliated with or endorsed by
+Formula 1, the FIA, or FoloToy. Formula 1 and related marks belong to their
+respective owners.

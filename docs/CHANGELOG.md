@@ -6,6 +6,10 @@
 
 ## Unreleased
 
+- Reworked the bilingual GitHub project READMEs around the PDKPASS experience,
+  added production-UI simulator captures for three contrasting rounds, and
+  surfaced the controls, app-free setup, simulator, build path, documentation,
+  project status, and disclaimer from the repository landing page.
 - Made each race-detail session row state-aware: upcoming sessions retain their
   Beijing start time, while completed, pending, cancelled, and absent sessions
   show `RESULT`, `PENDING`, `CANCELLED`, or `NO SESSION` respectively.
